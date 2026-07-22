@@ -17,11 +17,11 @@ ChartJS.register(
 export default function Dashboard({ inbounds, onOpenAddModal, onRestartCore, showToast }) {
   // Real-time dynamic system state
   const [sysInfo, setSysInfo] = useState({
-    cpu: 18.5,
-    memory: 42.1,
-    disk: 28.4,
-    uptime: '14 天 6 小时 32 分',
-    xrayVersion: 'v1.8.28 (Xray Core)',
+    cpu: 0,
+    memory: 0,
+    disk: 0,
+    uptime: '获取中...',
+    xrayVersion: '获取中...',
     xrayStatus: 'running'
   });
 
@@ -47,7 +47,10 @@ export default function Dashboard({ inbounds, onOpenAddModal, onRestartCore, sho
             setSysInfo(prev => ({
               ...prev,
               cpu: data.cpu !== undefined ? data.cpu : prev.cpu,
-              memory: data.memory !== undefined ? data.memory : prev.memory
+              memory: data.memory !== undefined ? data.memory : prev.memory,
+              disk: data.disk !== undefined ? data.disk : prev.disk,
+              uptime: data.uptime || prev.uptime,
+              xrayVersion: data.xrayVersion || prev.xrayVersion
             }));
             const newUp = parseFloat(data.upSpeedMB || 0);
             const newDown = parseFloat(data.downSpeedMB || 0);

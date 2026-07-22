@@ -19,6 +19,8 @@ export default function App() {
   const [toastMessage, setToastMessage] = useState(null);
   
   const [inbounds, setInbounds] = useState([]);
+  const [agentCount, setAgentCount] = useState(1);
+  const [relayCount, setRelayCount] = useState(0);
 
   const [isInboundModalOpen, setIsInboundModalOpen] = useState(false);
   const [editingInbound, setEditingInbound] = useState(null);
@@ -186,9 +188,9 @@ export default function App() {
         <nav className="desktop-nav" style={{ display: 'flex', gap: '8px', overflowX: 'auto', flexWrap: 'nowrap' }}>
           {[
             { id: 'dashboard', label: '主控仪表盘', icon: Activity },
-            { id: 'agent', label: 'AGENT 集群', icon: Server, count: 5 },
+            { id: 'agent', label: 'AGENT 集群', icon: Server, count: agentCount },
             { id: 'inbounds', label: '入站列表', icon: Layers, count: inbounds.length },
-            { id: 'relay', label: '节点中转', icon: ArrowRightLeft, count: 3 },
+            { id: 'relay', label: '节点中转', icon: ArrowRightLeft, count: relayCount },
             { id: 'routing', label: '路由分流', icon: Shield },
             { id: 'settings', label: '面板设置', icon: Settings }
           ].map(tab => {
@@ -294,6 +296,7 @@ export default function App() {
             inbounds={inbounds}
             showToast={showToast}
             onOpenQRModal={handleOpenQRModal}
+            onNodesChange={setAgentCount}
           />
         )}
 
@@ -314,6 +317,7 @@ export default function App() {
           <RelayManagement 
             showToast={showToast} 
             onOpenQRModal={handleOpenQRModal}
+            onRelaysChange={setRelayCount}
           />
         )}
 

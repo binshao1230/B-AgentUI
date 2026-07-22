@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   ArrowRightLeft, Plus, Search, RefreshCw, Power, Edit3, Trash2, 
   Server, Network, Zap, QrCode, MapPin, Link2
@@ -18,10 +18,28 @@ const PRESET_AGENTS = [
   { id: '__custom__', name: '🌐 自定义服务器 IP...', ip: '', role: 'custom', isNat: false, region: '自定义' },
 ];
 
-export default function RelayManagement({ showToast, onOpenQRModal, agents = PRESET_AGENTS }) {
+export default function RelayManagement({ showToast, onOpenQRModal, agents = PRESET_AGENTS, onRelaysChange }) {
   const activeAgents = agents && agents.length > 0 ? agents : PRESET_AGENTS;
 
-  const [relays, setRelays] = useState([]);
+  // 从 localStorage 加载已保存的中转规则
+  const loadSavedRelays = () => {
+    try {
+      const saved = localStorage.getItem('b_agentui_relays');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch {}
+    return [];
+  };
+
+  const [relays, setRelays] = useState(loadSavedRelays);
+
+  // 中转规则变化时自动持久化到 localStorage 并通知父组件
+  useEffect(() => {
+    localStorage.setItem('b_agentui_relays', JSON.stringify(relays));
+    if (onRelaysChange) onRelaysChange(relays.length);
+  }, [relays, onRelaysChange]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
