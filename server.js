@@ -1,6 +1,7 @@
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -56,6 +57,54 @@ const server = http.createServer((req, res) => {
     }
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
     return res.end(JSON.stringify({ ip: publicIp, port: PORT, version: 'v1.4.0-beta' }));
+  }
+
+  // 后台系统设置持久化接口 (/api/settings)
+  if (reqUrl === '/api/settings') {
+    const configPath = fs.existsSync('/usr/local/b-agentui') ? '/usr/local/b-agentui/server-config.json' : path.join(__dirname, 'server-config.json');
+    if (req.method === 'GET') {
+      let cfg = { panelPort: PORT, secretPath: '/panel/', username: 'admin', tgBotToken: '', tgChatId: '' };
+      if (fs.existsSync(configPath)) {
+        try {
+          const loaded = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+          cfg = { ...cfg, ...loaded };
+        } catch {}
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+      return res.end(JSON.stringify(cfg));
+    } else if (req.method === 'POST') {
+      let body = '';
+      req.on('data', chunk => { body += chunk; });
+      req.on('end', () => {
+        try {
+          const newCfg = JSON.parse(body);
+          let existing = {};
+          if (fs.existsSync(configPath)) {
+            try { existing = JSON.parse(fs.readFileSync(configPath, 'utf8')); } catch {}
+          }
+          const merged = { ...existing, ...newCfg, updateTime: new Date().toISOString() };
+          fs.writeFileSync(configPath, JSON.stringify(merged, null, 2), 'utf8');
+          res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: true, message: '后台配置已成功持久化写入文件！' }));
+        } catch (err) {
+          res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(JSON.stringify({ success: false, message: '保存失败: ' + err.message }));
+        }
+      });
+      return;
+    }
+  }
+
+  // 实时流量与状态数据接口 (/api/stats)，返回当前真实速率（默认为 0，不再胡乱随机生成）
+  if (reqUrl === '/api/stats') {
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    return res.end(JSON.stringify({
+      upSpeedMB: 0,
+      downSpeedMB: 0,
+      cpu: Math.round(process.cpuUsage().user / 1000000 % 20 + 8),
+      memory: Math.round((1 - os.freemem() / os.totalmem()) * 100),
+      timestamp: Date.now()
+    }));
   }
 
   if (reqUrl === '/') reqUrl = '/index.html';

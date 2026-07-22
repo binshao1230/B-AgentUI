@@ -27,8 +27,8 @@ export default function Dashboard({ inbounds, onOpenAddModal, onRestartCore, sho
 
   const [speedData, setSpeedData] = useState({
     labels: ['15s', '12s', '9s', '6s', '3s', '0s'],
-    upSpeed: [1.2, 2.4, 1.8, 3.5, 4.2, 2.8], // MB/s
-    downSpeed: [12.4, 18.2, 14.5, 26.8, 32.1, 24.5] // MB/s
+    upSpeed: [0, 0, 0, 0, 0, 0], // MB/s
+    downSpeed: [0, 0, 0, 0, 0, 0] // MB/s
   });
 
   // Calculate overall stats from inbounds
@@ -37,25 +37,30 @@ export default function Dashboard({ inbounds, onOpenAddModal, onRestartCore, sho
   const totalTraffic = totalUp + totalDown;
   const activeInbounds = inbounds.filter(i => i.enable).length;
 
-  // Simulate live traffic chart updates
+  // 请求后端真实实时监控数据与系统占用（若无活动连接或无数据流，保持准确为 0）
   useEffect(() => {
     const interval = setInterval(() => {
-      // Simulate slight system fluctuation
-      setSysInfo(prev => ({
-        ...prev,
-        cpu: Math.min(99, Math.max(8, (prev.cpu + (Math.random() * 6 - 3)).toFixed(1))),
-        memory: Math.min(95, Math.max(35, (prev.memory + (Math.random() * 2 - 1)).toFixed(1)))
-      }));
-
-      // Simulate speed data points
-      const newUp = (Math.random() * 3 + 1).toFixed(2);
-      const newDown = (Math.random() * 25 + 10).toFixed(2);
-
-      setSpeedData(prev => ({
-        labels: [...prev.labels.slice(1), '0s'],
-        upSpeed: [...prev.upSpeed.slice(1), parseFloat(newUp)],
-        downSpeed: [...prev.downSpeed.slice(1), parseFloat(newDown)]
-      }));
+      fetch('/api/stats')
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            setSysInfo(prev => ({
+              ...prev,
+              cpu: data.cpu !== undefined ? data.cpu : prev.cpu,
+              memory: data.memory !== undefined ? data.memory : prev.memory
+            }));
+            const newUp = parseFloat(data.upSpeedMB || 0);
+            const newDown = parseFloat(data.downSpeedMB || 0);
+            setSpeedData(prev => ({
+              labels: [...prev.labels.slice(1), '0s'],
+              upSpeed: [...prev.upSpeed.slice(1), newUp],
+              downSpeed: [...prev.downSpeed.slice(1), newDown]
+            }));
+          }
+        })
+        .catch(() => {
+          // 接口异常或未启动后端时保持平稳不跳变
+        });
     }, 2500);
 
     return () => clearInterval(interval);

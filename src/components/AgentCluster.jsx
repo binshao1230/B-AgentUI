@@ -281,28 +281,29 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal }
   const [copiedLinkNodeId, setCopiedLinkNodeId] = useState(null);
   const [showJsonCodeNodeId, setShowJsonCodeNodeId] = useState(null);
 
-  // 定时模拟
+  // 实时同步节点状态与实际流量
   useEffect(() => {
     const timer = setInterval(() => {
-      setNodes(prev => prev.map(n => {
-        if (n.status !== 'online') return n;
-        const base = n.role === 'egress' ? { up: 10485760, down: 83886080 } : n.role === 'entrance' ? { up: 6291456, down: 52428800 } : { up: 2097152, down: 20971520 };
-        const jitter = () => 0.7 + Math.random() * 0.6;
-        const newUpSpeed = Math.floor(base.up * jitter());
-        const newDownSpeed = Math.floor(base.down * jitter());
-        return {
-          ...n,
-          upSpeed: newUpSpeed,
-          downSpeed: newDownSpeed,
-          todayUp: (n.todayUp || 0) + newUpSpeed * 2,
-          todayDown: (n.todayDown || 0) + newDownSpeed * 2,
-          totalUp: (n.totalUp || 0) + newUpSpeed * 2,
-          totalDown: (n.totalDown || 0) + newDownSpeed * 2,
-          cpu: Math.max(5, Math.min(95, n.cpu + (Math.random() - 0.5) * 4)),
-          memory: Math.max(10, Math.min(90, n.memory + (Math.random() - 0.5) * 2)),
-        };
-      }));
-    }, 2000);
+      fetch('/api/stats')
+        .then(res => res.json())
+        .then(data => {
+          if (data) {
+            setNodes(prev => prev.map(n => {
+              if (n.role === 'master' && n.status === 'online') {
+                return {
+                  ...n,
+                  upSpeed: (data.upSpeedMB || 0) * 1048576,
+                  downSpeed: (data.downSpeedMB || 0) * 1048576,
+                  cpu: data.cpu !== undefined ? data.cpu : n.cpu,
+                  memory: data.memory !== undefined ? data.memory : n.memory
+                };
+              }
+              return n;
+            }));
+          }
+        })
+        .catch(() => {});
+    }, 2500);
     return () => clearInterval(timer);
   }, []);
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Shield, Download, Upload, RefreshCw, Send, Lock, 
   Database
@@ -6,7 +6,7 @@ import {
 
 export default function SystemSettings({ inbounds, showToast }) {
   const [panelPort, setPanelPort] = useState(2053);
-  const [secretPath, setSecretPath] = useState('/3xui-admin');
+  const [secretPath, setSecretPath] = useState('/panel/');
   const [adminUser, setAdminUser] = useState('admin');
   const [adminPassword, setAdminPassword] = useState('••••••••••••');
   
@@ -15,9 +15,64 @@ export default function SystemSettings({ inbounds, showToast }) {
   const [tgBotToken, setTgBotToken] = useState('');
   const [tgChatId, setTgChatId] = useState('');
 
+  // 初始化加载服务器持久化设置
+  useEffect(() => {
+    const local = localStorage.getItem('b_agentui_settings');
+    if (local) {
+      try {
+        const parsed = JSON.parse(local);
+        if (parsed.panelPort) setPanelPort(parsed.panelPort);
+        if (parsed.secretPath) setSecretPath(parsed.secretPath);
+        if (parsed.username) setAdminUser(parsed.username);
+        if (parsed.password) setAdminPassword(parsed.password);
+        if (parsed.tgBotToken) setTgBotToken(parsed.tgBotToken);
+        if (parsed.tgChatId) setTgChatId(parsed.tgChatId);
+      } catch {}
+    }
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data && (data.panelPort || data.username)) {
+          if (data.panelPort) setPanelPort(data.panelPort);
+          if (data.secretPath) setSecretPath(data.secretPath);
+          if (data.username) setAdminUser(data.username);
+          if (data.password) setAdminPassword(data.password);
+          if (data.tgBotToken) setTgBotToken(data.tgBotToken);
+          if (data.tgChatId) setTgChatId(data.tgChatId);
+          localStorage.setItem('b_agentui_settings', JSON.stringify(data));
+        }
+      })
+      .catch(() => {});
+  }, []);
+
   const handleSavePanelSettings = (e) => {
     e.preventDefault();
-    showToast('面板设置修改成功！');
+    const payload = {
+      panelPort: parseInt(panelPort, 10) || 2053,
+      secretPath,
+      username: adminUser,
+      password: adminPassword,
+      tgBotToken,
+      tgChatId
+    };
+    localStorage.setItem('b_agentui_settings', JSON.stringify(payload));
+
+    fetch('/api/settings', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(res => res.json())
+      .then(res => {
+        if (res.success) {
+          showToast('面板账号与安全配置已修改并成功持久化写入服务器！');
+        } else {
+          showToast('配置修改已保存至本地：' + (res.message || ''));
+        }
+      })
+      .catch(() => {
+        showToast('面板设置已修改并保存到客户端本地缓存！');
+      });
   };
 
   const handleExportBackup = () => {
@@ -233,9 +288,14 @@ export default function SystemSettings({ inbounds, showToast }) {
                 onChange={e => setTgChatId(e.target.value)}
               />
             </div>
-            <button className="btn-secondary" onClick={() => showToast('Telegram 测试告警消息已成功发送！')}>
-              发送测试消息
-            </button>
+            <div style={{ display: 'flex', gap: '12px' }}>
+              <button className="btn-primary" style={{ flex: 1 }} onClick={handleSavePanelSettings}>
+                保存 Telegram 配置
+              </button>
+              <button className="btn-secondary" style={{ flex: 1 }} onClick={() => showToast('Telegram 测试告警消息已成功发送！')}>
+                发送测试消息
+              </button>
+            </div>
           </div>
         </div>
 
