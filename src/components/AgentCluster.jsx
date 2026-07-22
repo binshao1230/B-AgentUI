@@ -143,43 +143,59 @@ const THREE_X_UI_TEMPLATES = [
 ];
 
 export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal }) {
-  // 每个节点初始化配备已下发的配置集合及 NAT 端口属性
+  // 每个节点初始化配备已下发的配置集合及 NAT 端口属性（自动识别并关联本机 VPS 公网 IP）
+  const getInitialMasterIp = () => {
+    const host = window.location.hostname;
+    if (host && host !== 'localhost' && host !== '127.0.0.1' && host !== '0.0.0.0') {
+      return host;
+    }
+    return '127.0.0.1';
+  };
+
   const [nodes, setNodes] = useState([
     {
-      id: 'master', name: '香港 Master 主控', role: 'master', ip: '154.21.98.110', agentPort: 2053, isNat: false, natPublicPortRange: '', region: '🇭🇰 中国香港', status: 'online', cpu: 18.5, memory: 42.1, disk: 28.4, latency: 5, activeInbounds: 3, version: 'v1.3.0', secretKey: 'master_secret_key_889900', totalUp: 128849018880, totalDown: 966367641600, todayUp: 5368709120, todayDown: 42949672960, onlineUsers: 24, totalConnections: 1842, activeConnections: 156, upSpeed: 2936012, downSpeed: 25690316,
-      deployedNodes: [
-        { id: 101, remark: 'HK-VLESS-Reality-Vision', protocol: 'vless', port: 443, network: 'tcp', security: 'reality', sni: 'dl.google.com', publicKey: 'q8A-H_1vXzQpL7N0K_3mF-s9yW4eR2tU5iV8oP1zX4A', shortId: '6a8b9c1d', flow: 'xtls-rprx-vision', clients: [{ id: 'e4d3c2b1-1234-4567-89ab-cdef01234567', email: 'hk_user@3xui' }] },
-        { id: 102, remark: 'US-VMess-WS-TLS', protocol: 'vmess', port: 2083, network: 'ws', path: '/vmess-ws-path', security: 'tls', sni: 'cloudflare.com', clients: [{ id: 'a1b2c3d4-5678-90ab-cdef-1234567890ab', email: 'us_user@3xui' }] },
-        { id: 103, remark: 'JP-Trojan-gRPC', protocol: 'trojan', port: 8443, network: 'grpc', security: 'tls', sni: 'apple.com', password: 'TrojanPasscode998', clients: [{ id: 'TrojanPasscode998', email: 'jp_user@3xui' }] }
-      ]
-    },
-    {
-      id: 'node-nat-1', name: '广州移动 01 (NAT 专线)', role: 'entrance', ip: '183.232.41.88', agentPort: 28053, isNat: true, natPublicPortRange: '30000-30020', region: '🇨🇳 广东广州', status: 'online', cpu: 24.2, memory: 38.6, disk: 19.2, latency: 18, activeInbounds: 2, version: 'v1.3.0', secretKey: 'agent_key_gz_01', totalUp: 85899345920, totalDown: 644245094400, todayUp: 3221225472, todayDown: 32212254720, onlineUsers: 18, totalConnections: 1204, activeConnections: 98, upSpeed: 8808038, downSpeed: 71536230,
-      deployedNodes: [
-        { id: 201, remark: 'GZ-NAT-VLESS-30001', protocol: 'vless', port: 30001, network: 'tcp', security: 'reality', sni: 'dl.google.com', publicKey: 'q8A-H_1vXzQpL7N0K_3mF-s9yW4eR2tU5iV8oP1zX4A', shortId: '6a8b9c1d', flow: 'xtls-rprx-vision', clients: [{ id: 'e4d3c2b1-1234-4567-89ab-cdef01234567', email: 'gz_user@3xui' }] },
-        { id: 202, remark: 'GZ-NAT-Hysteria2-30005', protocol: 'hysteria2', port: 30005, network: 'udp', security: 'none', password: 'Hys2PasscodeGZ', clients: [{ id: 'Hys2PasscodeGZ', email: 'gz_hys2@3xui' }] }
-      ]
-    },
-    {
-      id: 'node-2', name: '上海电信 CN2', role: 'entrance', ip: '114.242.8.99', agentPort: 2053, isNat: false, natPublicPortRange: '', region: '🇨🇳 上海', status: 'online', cpu: 15.8, memory: 29.4, disk: 22.1, latency: 22, activeInbounds: 1, version: 'v1.3.0', secretKey: 'agent_key_sh_02', totalUp: 42949672960, totalDown: 322122547200, todayUp: 2147483648, todayDown: 16106127360, onlineUsers: 12, totalConnections: 856, activeConnections: 64, upSpeed: 4404019, downSpeed: 33674321,
-      deployedNodes: [
-        { id: 301, remark: 'SH-VMess-WS-TLS-Entrance', protocol: 'vmess', port: 2083, network: 'ws', path: '/sh-vmess-path', security: 'tls', sni: 'cloudflare.com', clients: [{ id: 'a1b2c3d4-5678-90ab-cdef-1234567890ab', email: 'sh_user@3xui' }] }
-      ]
-    },
-    {
-      id: 'node-3', name: '日本东京 CN2', role: 'egress', ip: '45.14.66.12', agentPort: 2053, isNat: false, natPublicPortRange: '', region: '🇯🇵 日本东京', status: 'online', cpu: 31.4, memory: 52.8, disk: 34.6, latency: 35, activeInbounds: 2, version: 'v1.3.0', secretKey: 'agent_key_jp_03', totalUp: 214748364800, totalDown: 1288490188800, todayUp: 8589934592, todayDown: 64424509440, onlineUsers: 36, totalConnections: 2680, activeConnections: 210, upSpeed: 12692070, downSpeed: 103322265,
-      deployedNodes: [
-        { id: 401, remark: 'JP-VLESS-Reality-Vision', protocol: 'vless', port: 443, network: 'tcp', security: 'reality', sni: 'dl.google.com', publicKey: 'q8A-H_1vXzQpL7N0K_3mF-s9yW4eR2tU5iV8oP1zX4A', shortId: '6a8b9c1d', flow: 'xtls-rprx-vision', clients: [{ id: 'e4d3c2b1-1234-4567-89ab-cdef01234567', email: 'jp_user@3xui' }] },
-        { id: 402, remark: 'JP-Trojan-gRPC-Speed', protocol: 'trojan', port: 8443, network: 'grpc', security: 'tls', sni: 'apple.com', password: 'TrojanPasscode998', clients: [{ id: 'TrojanPasscode998', email: 'jp_user@3xui' }] }
-      ]
-    },
-    {
-      id: 'node-4', name: '美国洛杉矶 01', role: 'egress', ip: '198.51.100.44', agentPort: 2053, isNat: false, natPublicPortRange: '', region: '🇺🇸 美国洛杉矶', status: 'online', cpu: 12.0, memory: 24.5, disk: 15.8, latency: 145, activeInbounds: 1, version: 'v1.3.0', secretKey: 'agent_key_us_04', totalUp: 53687091200, totalDown: 429496729600, todayUp: 1073741824, todayDown: 10737418240, onlineUsers: 8, totalConnections: 620, activeConnections: 42, upSpeed: 1572864, downSpeed: 14901273,
-      deployedNodes: [
-        { id: 501, remark: 'US-VLESS-Reality-LA', protocol: 'vless', port: 443, network: 'tcp', security: 'reality', sni: 'dl.google.com', publicKey: 'q8A-H_1vXzQpL7N0K_3mF-s9yW4eR2tU5iV8oP1zX4A', shortId: '6a8b9c1d', flow: 'xtls-rprx-vision', clients: [{ id: 'e4d3c2b1-1234-4567-89ab-cdef01234567', email: 'us_user@3xui' }] }
-      ]
-    },
+      id: 'master',
+      name: 'Master 主控本节点',
+      role: 'master',
+      ip: getInitialMasterIp(),
+      agentPort: 2053,
+      isNat: false,
+      natPublicPortRange: '',
+      region: '🖥️ 本地主控',
+      status: 'online',
+      cpu: 12.0,
+      memory: 28.5,
+      disk: 18.2,
+      latency: 1,
+      activeInbounds: 0,
+      version: 'v1.4.0-beta',
+      secretKey: 'master_secret_' + Math.random().toString(36).slice(2, 10),
+      totalUp: 0,
+      totalDown: 0,
+      todayUp: 0,
+      todayDown: 0,
+      onlineUsers: 0,
+      totalConnections: 0,
+      activeConnections: 0,
+      upSpeed: 0,
+      downSpeed: 0,
+      deployedNodes: []
+    }
   ]);
+
+  useEffect(() => {
+    fetch('/api/ip').then(r => r.json()).then(d => {
+      if (d && d.ip && d.ip !== '127.0.0.1') {
+        setNodes(prev => prev.map(n => n.role === 'master' ? { ...n, ip: d.ip } : n));
+      }
+    }).catch(() => {
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => {
+          if (d && d.ip) setNodes(prev => prev.map(n => n.role === 'master' ? { ...n, ip: d.ip } : n));
+        }).catch(() => {});
+      }
+    });
+  }, []);
 
   const [viewMode, setViewMode] = useState('compact');
   const [isDeployModalOpen, setIsDeployModalOpen] = useState(false);
@@ -323,9 +339,9 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal }
   const handleOpenDeployModal = (node) => {
     const port = node.agentPort || 2053;
     const natFlag = node.isNat && node.natPublicPortRange ? ` --nat-ports="${node.natPublicPortRange}"` : '';
-    const masterNode = nodes.find(n => n.role === 'master') || nodes[0] || { ip: '154.21.98.110', agentPort: 2053 };
+    const masterNode = nodes.find(n => n.role === 'master') || nodes[0] || { ip: window.location.hostname || '127.0.0.1', agentPort: 2053 };
     const secret = node.secretKey || `agent_secret_${node.id || Math.random().toString(36).slice(2, 8)}`;
-    const cmd = `curl -fsSL https://3xui-lite.io/install-agent.sh | bash -s -- --master=${masterNode.ip}:${masterNode.agentPort || 2053} --agent-port=${port} --secret=${secret} --role=${node.role}${natFlag}`;
+    const cmd = `curl -fsSL https://raw.githubusercontent.com/binshao1230/B-AgentUI/main/install-linux.sh | bash -s -- --master=${masterNode.ip}:${masterNode.agentPort || 2053} --agent-port=${port} --secret=${secret} --role=${node.role}${natFlag}`;
     setSelectedNodeCmd({ node, cmd });
     setIsDeployModalOpen(true);
   };

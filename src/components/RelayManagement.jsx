@@ -5,110 +5,23 @@ import {
 } from 'lucide-react';
 import { formatBytes } from '../utils/xrayHelper';
 
+const getInitialMasterIp = () => {
+  const host = window.location.hostname;
+  if (host && host !== 'localhost' && host !== '127.0.0.1' && host !== '0.0.0.0') {
+    return host;
+  }
+  return '127.0.0.1';
+};
+
 const PRESET_AGENTS = [
-  { id: 'master', name: '香港 Master 主控', ip: '154.21.98.110', role: 'master', isNat: false, region: '🇭🇰 中国香港' },
-  { id: 'node-nat-1', name: '广州移动 01 (NAT 专线)', ip: '183.232.41.88', role: 'entrance', isNat: true, natPublicPortRange: '30000-30020', region: '🇨🇳 广东广州' },
-  { id: 'node-2', name: '上海电信 CN2 02', ip: '114.242.8.99', role: 'entrance', isNat: false, region: '🇨🇳 上海' },
-  { id: 'node-3', name: '日本东京 CN2 03', ip: '45.14.66.12', role: 'egress', isNat: false, region: '🇯🇵 日本东京' },
-  { id: 'node-4', name: '美国洛杉矶 04', ip: '198.51.100.44', role: 'egress', isNat: false, region: '🇺🇸 美国洛杉矶' },
+  { id: 'master', name: 'Master 主控本节点', ip: getInitialMasterIp(), role: 'master', isNat: false, region: '🖥️ 本地主控' },
   { id: '__custom__', name: '🌐 自定义服务器 IP...', ip: '', role: 'custom', isNat: false, region: '自定义' },
 ];
 
 export default function RelayManagement({ showToast, onOpenQRModal, agents = PRESET_AGENTS }) {
   const activeAgents = agents && agents.length > 0 ? agents : PRESET_AGENTS;
 
-  const [relays, setRelays] = useState([
-    {
-      id: 1,
-      name: '广州移动 NAT ➔ 链式中转 ➔ 香港 BGP 落地机',
-      mode: 'chained', // 'direct' | 'chained'
-      // 入口
-      entranceNodeId: 'node-nat-1',
-      entranceNodeName: '广州移动 01 (NAT 专线)',
-      entranceIp: '183.232.41.88',
-      entrancePort: 30008,
-      isNatEntrance: true,
-      natRange: '30000-30020',
-      // 中转
-      relayNodeId: 'node-2',
-      relayNodeName: '上海电信 CN2 过境节点',
-      relayIp: '114.242.8.99',
-      relayPort: 18080,
-      // 落地
-      targetIp: '154.21.98.110',
-      targetPort: 443,
-      protocol: 'tcp_udp',
-      engine: 'Realm (高性能)',
-      status: 'active',
-      hop1Latency: 12,
-      hop2Latency: 24,
-      latency: 36,
-      up: 458900120,
-      down: 3845920040,
-      enable: true,
-      remark: 'HK-VLESS-Reality-Vision'
-    },
-    {
-      id: 2,
-      name: '上海电信 CN2 ➔ 日本 Tokyo 落地节点 (双跳直连)',
-      mode: 'direct',
-      // 入口
-      entranceNodeId: 'node-2',
-      entranceNodeName: '上海电信 CN2 02',
-      entranceIp: '114.242.8.99',
-      entrancePort: 20080,
-      isNatEntrance: false,
-      natRange: '',
-      // 中转
-      relayNodeId: '',
-      relayNodeName: '',
-      relayIp: '',
-      relayPort: 0,
-      // 落地
-      targetIp: '45.14.66.12',
-      targetPort: 8443,
-      protocol: 'gost_tunnel',
-      engine: 'GOST v3 隧道',
-      status: 'active',
-      hop1Latency: 32,
-      hop2Latency: 0,
-      latency: 32,
-      up: 210040000,
-      down: 1840050000,
-      enable: true,
-      remark: 'JP-Trojan-gRPC-Speed'
-    },
-    {
-      id: 3,
-      name: 'Master 主控 ➔ 韩国首尔中转 ➔ 新加坡 Hysteria2 链式专线',
-      mode: 'chained',
-      // 入口
-      entranceNodeId: 'master',
-      entranceNodeName: '香港 Master 主控',
-      entranceIp: '154.21.98.110',
-      entrancePort: 10080,
-      isNatEntrance: false,
-      natRange: '',
-      // 中转
-      relayNodeId: '__custom__',
-      relayNodeName: '🇰🇷 韩国首尔过境 VPS',
-      relayIp: '211.180.99.22',
-      relayPort: 25000,
-      // 落地
-      targetIp: '198.51.100.44',
-      targetPort: 30443,
-      protocol: 'udp_quic',
-      engine: 'iptables 原生转发',
-      status: 'active',
-      hop1Latency: 18,
-      hop2Latency: 35,
-      latency: 53,
-      up: 890000000,
-      down: 9200000000,
-      enable: true,
-      remark: 'SG-Hysteria2-QUIC-UDP'
-    }
-  ]);
+  const [relays, setRelays] = useState([]);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -118,19 +31,19 @@ export default function RelayManagement({ showToast, onOpenQRModal, agents = PRE
     name: '',
     mode: 'chained', // 'direct' | 'chained'
     // 入口
-    entranceNodeId: 'node-nat-1',
-    entranceNodeName: '广州移动 01 (NAT 专线)',
-    entranceIp: '183.232.41.88',
+    entranceNodeId: 'master',
+    entranceNodeName: 'Master 主控本节点',
+    entranceIp: getInitialMasterIp(),
     entrancePort: 30010,
-    isNatEntrance: true,
-    natRange: '30000-30020',
+    isNatEntrance: false,
+    natRange: '',
     // 中转节点
-    relayNodeId: 'node-2',
-    relayNodeName: '上海电信 CN2 过境节点',
-    relayIp: '114.242.8.99',
+    relayNodeId: '__custom__',
+    relayNodeName: '🌐 自定义服务器 IP...',
+    relayIp: '',
     relayPort: 18080,
     // 落地
-    targetIp: '198.51.100.44',
+    targetIp: '127.0.0.1',
     targetPort: 443,
     engine: 'Realm (高性能)',
     protocol: 'tcp_udp'
@@ -236,9 +149,9 @@ export default function RelayManagement({ showToast, onOpenQRModal, agents = PRE
       natRange: '30000-30020',
       relayNodeId: defaultRelay.id,
       relayNodeName: defaultRelay.name,
-      relayIp: defaultRelay.ip,
+      relayIp: defaultRelay.ip || '',
       relayPort: 18080,
-      targetIp: '198.51.100.44',
+      targetIp: '127.0.0.1',
       targetPort: 443,
       engine: 'Realm (高性能)',
       protocol: 'tcp_udp'
@@ -751,7 +664,7 @@ export default function RelayManagement({ showToast, onOpenQRModal, agents = PRE
                     type="text" 
                     className="form-input font-mono"
                     required
-                    placeholder="45.14.66.12"
+                    placeholder="例如: 1.2.3.4 或 node.example.com"
                     value={formData.targetIp}
                     onChange={e => setFormData({ ...formData, targetIp: e.target.value })}
                   />

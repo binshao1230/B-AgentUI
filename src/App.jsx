@@ -11,7 +11,6 @@ import RelayManagement from './components/RelayManagement';
 import RoutingRules from './components/RoutingRules';
 import SystemSettings from './components/SystemSettings';
 import AgentCluster from './components/AgentCluster';
-import { generateUUID } from './utils/xrayHelper';
 import './App.css';
 
 export default function App() {
@@ -19,66 +18,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [toastMessage, setToastMessage] = useState(null);
   
-  const [inbounds, setInbounds] = useState([
-    {
-      id: 1,
-      remark: 'HK-VLESS-REALITY-Vision',
-      protocol: 'vless',
-      port: 443,
-      network: 'tcp',
-      security: 'reality',
-      sni: 'dl.google.com',
-      flow: 'xtls-rprx-vision',
-      enable: true,
-      up: 1024 * 1024 * 4500,
-      down: 1024 * 1024 * 28400,
-      expiryTime: '2026-12-31',
-      clients: [{ id: generateUUID(), email: 'user1@3xui.com' }]
-    },
-    {
-      id: 2,
-      remark: 'JP-VMess-WS-CDN',
-      protocol: 'vmess',
-      port: 2083,
-      network: 'ws',
-      security: 'tls',
-      sni: 'cloudflare.com',
-      path: '/v-ws-secret',
-      enable: true,
-      up: 1024 * 1024 * 1200,
-      down: 1024 * 1024 * 15800,
-      expiryTime: '2026-10-15',
-      clients: [{ id: generateUUID(), email: 'user2@3xui.com' }]
-    },
-    {
-      id: 3,
-      remark: 'US-Trojan-gRPC-TLS',
-      protocol: 'trojan',
-      port: 8443,
-      network: 'grpc',
-      security: 'tls',
-      sni: 'apple.com',
-      enable: true,
-      up: 1024 * 1024 * 890,
-      down: 1024 * 1024 * 9400,
-      expiryTime: '2026-11-20',
-      clients: [{ id: 'TrojanPassword123!', email: 'user3@3xui.com' }]
-    },
-    {
-      id: 4,
-      remark: 'SG-Hysteria2-QUIC-UDP',
-      protocol: 'hysteria2',
-      port: 30443,
-      network: 'udp',
-      security: 'none',
-      sni: 'bing.com',
-      enable: false,
-      up: 1024 * 1024 * 120,
-      down: 1024 * 1024 * 640,
-      expiryTime: '2026-08-01',
-      clients: [{ id: 'Hy2AuthKey9900!', email: 'user4@3xui.com' }]
-    }
-  ]);
+  const [inbounds, setInbounds] = useState([]);
 
   const [isInboundModalOpen, setIsInboundModalOpen] = useState(false);
   const [editingInbound, setEditingInbound] = useState(null);
@@ -88,10 +28,31 @@ export default function App() {
 
   const [serverIpCopied, setServerIpCopied] = useState(false);
 
-  const serverIp = '154.21.98.110';
+  // 自动识别 VPS 公网 IP（默认取 hostname，后台支持请求接口读取公网地址）
+  const getInitialIp = () => {
+    const host = window.location.hostname;
+    if (host && host !== 'localhost' && host !== '127.0.0.1' && host !== '0.0.0.0') {
+      return host;
+    }
+    return '127.0.0.1';
+  };
+  const [serverIp, setServerIp] = useState(getInitialIp());
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    // 自动请求后端获取真实公网地址
+    fetch('/api/ip').then(res => res.json()).then(data => {
+      if (data && data.ip && data.ip !== '127.0.0.1') {
+        setServerIp(data.ip);
+      }
+    }).catch(() => {
+      // 降级使用 API 识别公网 IP
+      if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => {
+          if (d && d.ip) setServerIp(d.ip);
+        }).catch(() => {});
+      }
+    });
   }, [theme]);
 
   const toggleTheme = () => {

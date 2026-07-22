@@ -115,7 +115,16 @@ if command -v firewall-cmd >/dev/null 2>&1 && systemctl is-active --quiet firewa
 fi
 
 # 获取本机 IP
-SERVER_IP=$(curl -sSL4 ifconfig.me || curl -sSL4 api.ipify.org || echo "您的服务器IP")
+SERVER_IP=$(curl -sSL4 ifconfig.me || curl -sSL4 api.ipify.org || echo "")
+
+# 将自动识别的 VPS 公网地址写入配置文件
+cat << EOF > "${INSTALL_DIR}/server-config.json"
+{
+  "publicIp": "${SERVER_IP}",
+  "port": ${PORT},
+  "installTime": "$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+}
+EOF
 
 echo "=============================================================================="
 echo -e "${GREEN}🎉 恭喜！B-AgentUI Lite (Beta) 原生服务安装部署成功！${NC}"

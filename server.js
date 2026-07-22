@@ -31,8 +31,33 @@ const MIME_TYPES = {
 const server = http.createServer((req, res) => {
   // CORS 和基本头
   res.setHeader('X-Powered-By', 'B-AgentUI-Lite-Engine');
+  res.setHeader('Access-Control-Allow-Origin', '*');
   
   let reqUrl = req.url.split('?')[0];
+
+  // 提供自动识别 VPS 公网地址的 API
+  if (reqUrl === '/api/info' || reqUrl === '/api/ip') {
+    let publicIp = '';
+    const configPaths = [
+      path.join(__dirname, 'server-config.json'),
+      '/usr/local/b-agentui/server-config.json'
+    ];
+    for (const cp of configPaths) {
+      if (fs.existsSync(cp)) {
+        try {
+          const cfg = JSON.parse(fs.readFileSync(cp, 'utf8'));
+          if (cfg && cfg.publicIp) { publicIp = cfg.publicIp; break; }
+        } catch { /* 忽略配置解析报错 */ }
+      }
+    }
+    if (!publicIp) {
+      publicIp = process.env.PUBLIC_IP || req.headers['x-forwarded-for'] || req.socket.remoteAddress || '';
+      if (publicIp.includes('::ffff:')) publicIp = publicIp.replace('::ffff:', '');
+    }
+    res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
+    return res.end(JSON.stringify({ ip: publicIp, port: PORT, version: 'v1.4.0-beta' }));
+  }
+
   if (reqUrl === '/') reqUrl = '/index.html';
 
   let filePath = path.join(DIST_DIR, reqUrl);
