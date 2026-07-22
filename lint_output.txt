@@ -1,0 +1,507 @@
+
+> google@0.0.0 lint
+> oxlint
+
+
+  ! eslint(no-unused-vars): Identifier 'FileCode' is imported but never used.
+   ,-[src/components/QRCodeModal.jsx:2:34]
+ 1 | import React, { useState } from 'react';
+ 2 | import { X, Copy, Check, QrCode, FileCode, Layers, ShieldCheck } from 'lucide-react';
+   :                                  ^^^^|^^^
+   :                                      `-- 'FileCode' is imported here
+ 3 | import { QRCodeSVG } from 'qrcode.react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Layers' is imported but never used.
+   ,-[src/components/QRCodeModal.jsx:2:44]
+ 1 | import React, { useState } from 'react';
+ 2 | import { X, Copy, Check, QrCode, FileCode, Layers, ShieldCheck } from 'lucide-react';
+   :                                            ^^^|^^
+   :                                               `-- 'Layers' is imported here
+ 3 | import { QRCodeSVG } from 'qrcode.react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ShieldCheck' is imported but never used.
+   ,-[src/components/QRCodeModal.jsx:2:52]
+ 1 | import React, { useState } from 'react';
+ 2 | import { X, Copy, Check, QrCode, FileCode, Layers, ShieldCheck } from 'lucide-react';
+   :                                                    ^^^^^|^^^^^
+   :                                                         `-- 'ShieldCheck' is imported here
+ 3 | import { QRCodeSVG } from 'qrcode.react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Settings' is imported but never used.
+   ,-[src/components/SystemSettings.jsx:3:3]
+ 2 | import { 
+ 3 |   Settings, Key, Shield, Download, Upload, RefreshCw, Send, Lock, 
+   :   ^^^^|^^^
+   :       `-- 'Settings' is imported here
+ 4 |   Database, FileJson, CheckCircle2, Server
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Key' is imported but never used.
+   ,-[src/components/SystemSettings.jsx:3:13]
+ 2 | import { 
+ 3 |   Settings, Key, Shield, Download, Upload, RefreshCw, Send, Lock, 
+   :             ^|^
+   :              `-- 'Key' is imported here
+ 4 |   Database, FileJson, CheckCircle2, Server
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'FileJson' is imported but never used.
+   ,-[src/components/SystemSettings.jsx:4:13]
+ 3 |   Settings, Key, Shield, Download, Upload, RefreshCw, Send, Lock, 
+ 4 |   Database, FileJson, CheckCircle2, Server
+   :             ^^^^|^^^
+   :                 `-- 'FileJson' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'CheckCircle2' is imported but never used.
+   ,-[src/components/SystemSettings.jsx:4:23]
+ 3 |   Settings, Key, Shield, Download, Upload, RefreshCw, Send, Lock, 
+ 4 |   Database, FileJson, CheckCircle2, Server
+   :                       ^^^^^^|^^^^^
+   :                             `-- 'CheckCircle2' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Server' is imported but never used.
+   ,-[src/components/SystemSettings.jsx:4:37]
+ 3 |   Settings, Key, Shield, Download, Upload, RefreshCw, Send, Lock, 
+ 4 |   Database, FileJson, CheckCircle2, Server
+   :                                     ^^^|^^
+   :                                        `-- 'Server' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Catch parameter 'err' is caught but never used.
+    ,-[src/components/SystemSettings.jsx:53:18]
+ 52 |           }
+ 53 |         } catch (err) {
+    :                  ^|^
+    :                   `-- 'err' is declared here
+ 54 |           showToast('备份 JSON 解析失败！');
+    `----
+  help: Consider handling this error.
+
+  ! eslint(no-unused-vars): Identifier 'Globe' is imported but never used.
+   ,-[src/App.jsx:3:44]
+ 2 | import { 
+ 3 |   Activity, Layers, Shield, Settings, Zap, Globe, Plus, 
+   :                                            ^^|^^
+   :                                              `-- 'Globe' is imported here
+ 4 |   Terminal, Server, Copy, Check, Menu, X, RefreshCw, Sun, Moon, ArrowRightLeft 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Plus' is imported but never used.
+   ,-[src/App.jsx:3:51]
+ 2 | import { 
+ 3 |   Activity, Layers, Shield, Settings, Zap, Globe, Plus, 
+   :                                                   ^^|^
+   :                                                     `-- 'Plus' is imported here
+ 4 |   Terminal, Server, Copy, Check, Menu, X, RefreshCw, Sun, Moon, ArrowRightLeft 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Terminal' is imported but never used.
+   ,-[src/App.jsx:4:3]
+ 3 |   Activity, Layers, Shield, Settings, Zap, Globe, Plus, 
+ 4 |   Terminal, Server, Copy, Check, Menu, X, RefreshCw, Sun, Moon, ArrowRightLeft 
+   :   ^^^^|^^^
+   :       `-- 'Terminal' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Menu' is imported but never used.
+   ,-[src/App.jsx:4:34]
+ 3 |   Activity, Layers, Shield, Settings, Zap, Globe, Plus, 
+ 4 |   Terminal, Server, Copy, Check, Menu, X, RefreshCw, Sun, Moon, ArrowRightLeft 
+   :                                  ^^|^
+   :                                    `-- 'Menu' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'X' is imported but never used.
+   ,-[src/App.jsx:4:40]
+ 3 |   Activity, Layers, Shield, Settings, Zap, Globe, Plus, 
+ 4 |   Terminal, Server, Copy, Check, Menu, X, RefreshCw, Sun, Moon, ArrowRightLeft 
+   :                                        |
+   :                                        `-- 'X' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'mobileMenuOpen' is declared but never used. Unused variables should start with a '_'.
+    ,-[src/App.jsx:29:10]
+ 28 | 
+ 29 |   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    :          ^^^^^^^|^^^^^^
+    :                 `-- 'mobileMenuOpen' is declared here
+ 30 |   const [serverIpCopied, setServerIpCopied] = useState(false);
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'setMobileMenuOpen' is declared but never used. Unused variables should start with a '_'.
+    ,-[src/App.jsx:29:26]
+ 28 | 
+ 29 |   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    :                          ^^^^^^^^|^^^^^^^^
+    :                                  `-- 'setMobileMenuOpen' is declared here
+ 30 |   const [serverIpCopied, setServerIpCopied] = useState(false);
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'ShieldCheck' is imported but never used.
+   ,-[src/components/Dashboard.jsx:4:20]
+ 3 |   Activity, Server, ArrowUpRight, ArrowDownRight, Cpu, HardDrive, 
+ 4 |   RefreshCw, Plus, ShieldCheck, Zap, Radio, Globe, Layers, AlertCircle
+   :                    ^^^^^|^^^^^
+   :                         `-- 'ShieldCheck' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'AlertCircle' is imported but never used.
+   ,-[src/components/Dashboard.jsx:4:60]
+ 3 |   Activity, Server, ArrowUpRight, ArrowDownRight, Cpu, HardDrive, 
+ 4 |   RefreshCw, Plus, ShieldCheck, Zap, Radio, Globe, Layers, AlertCircle
+   :                                                            ^^^^^|^^^^^
+   :                                                                 `-- 'AlertCircle' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Key' is imported but never used.
+   ,-[src/components/InboundModal.jsx:2:23]
+ 1 | import React, { useState, useEffect } from 'react';
+ 2 | import { X, Sparkles, Key, Shield, RefreshCw, Layers, Check, Copy, FileText, Zap } from 'lucide-react';
+   :                       ^|^
+   :                        `-- 'Key' is imported here
+ 3 | import { generateUUID, generateRealityKeyPair, generateShortId } from '../utils/xrayHelper';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Layers' is imported but never used.
+   ,-[src/components/InboundModal.jsx:2:47]
+ 1 | import React, { useState, useEffect } from 'react';
+ 2 | import { X, Sparkles, Key, Shield, RefreshCw, Layers, Check, Copy, FileText, Zap } from 'lucide-react';
+   :                                               ^^^|^^
+   :                                                  `-- 'Layers' is imported here
+ 3 | import { generateUUID, generateRealityKeyPair, generateShortId } from '../utils/xrayHelper';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Copy' is imported but never used.
+   ,-[src/components/InboundModal.jsx:2:62]
+ 1 | import React, { useState, useEffect } from 'react';
+ 2 | import { X, Sparkles, Key, Shield, RefreshCw, Layers, Check, Copy, FileText, Zap } from 'lucide-react';
+   :                                                              ^^|^
+   :                                                                `-- 'Copy' is imported here
+ 3 | import { generateUUID, generateRealityKeyPair, generateShortId } from '../utils/xrayHelper';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Zap' is imported but never used.
+   ,-[src/components/InboundModal.jsx:2:78]
+ 1 | import React, { useState, useEffect } from 'react';
+ 2 | import { X, Sparkles, Key, Shield, RefreshCw, Layers, Check, Copy, FileText, Zap } from 'lucide-react';
+   :                                                                              ^|^
+   :                                                                               `-- 'Zap' is imported here
+ 3 | import { generateUUID, generateRealityKeyPair, generateShortId } from '../utils/xrayHelper';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'activeTab' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/components/InboundModal.jsx:115:10]
+ 114 | 
+ 115 |   const [activeTab, setActiveTab] = useState('basic');
+     :          ^^^^|^^^^
+     :              `-- 'activeTab' is declared here
+ 116 |   const [selectedTemplateId, setSelectedTemplateId] = useState('');
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Variable 'setActiveTab' is declared but never used. Unused variables should start with a '_'.
+     ,-[src/components/InboundModal.jsx:115:21]
+ 114 | 
+ 115 |   const [activeTab, setActiveTab] = useState('basic');
+     :                     ^^^^^^|^^^^^
+     :                           `-- 'setActiveTab' is declared here
+ 116 |   const [selectedTemplateId, setSelectedTemplateId] = useState('');
+     `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'ShieldAlert' is imported but never used.
+   ,-[src/components/RoutingRules.jsx:2:18]
+ 1 | import React, { useState } from 'react';
+ 2 | import { Shield, ShieldAlert, Zap, Globe, Plus, Trash2, CheckCircle2, ToggleLeft, ToggleRight } from 'lucide-react';
+   :                  ^^^^^|^^^^^
+   :                       `-- 'ShieldAlert' is imported here
+ 3 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Zap' is imported but never used.
+   ,-[src/components/RoutingRules.jsx:2:31]
+ 1 | import React, { useState } from 'react';
+ 2 | import { Shield, ShieldAlert, Zap, Globe, Plus, Trash2, CheckCircle2, ToggleLeft, ToggleRight } from 'lucide-react';
+   :                               ^|^
+   :                                `-- 'Zap' is imported here
+ 3 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'CheckCircle2' is imported but never used.
+   ,-[src/components/RoutingRules.jsx:2:57]
+ 1 | import React, { useState } from 'react';
+ 2 | import { Shield, ShieldAlert, Zap, Globe, Plus, Trash2, CheckCircle2, ToggleLeft, ToggleRight } from 'lucide-react';
+   :                                                         ^^^^^^|^^^^^
+   :                                                               `-- 'CheckCircle2' is imported here
+ 3 | 
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Users' is imported but never used.
+   ,-[src/components/InboundList.jsx:3:58]
+ 2 | import { 
+ 3 |   Plus, Search, QrCode, Edit3, Trash2, Power, RotateCcw, Users, 
+   :                                                          ^^|^^
+   :                                                            `-- 'Users' is imported here
+ 4 |   Shield, Network, Calendar, HardDrive, ArrowUpRight, ArrowDownRight,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Calendar' is imported but never used.
+   ,-[src/components/InboundList.jsx:4:20]
+ 3 |   Plus, Search, QrCode, Edit3, Trash2, Power, RotateCcw, Users, 
+ 4 |   Shield, Network, Calendar, HardDrive, ArrowUpRight, ArrowDownRight,
+   :                    ^^^^|^^^
+   :                        `-- 'Calendar' is imported here
+ 5 |   Sparkles, CheckCircle2, XCircle, Copy
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ArrowUpRight' is imported but never used.
+   ,-[src/components/InboundList.jsx:4:41]
+ 3 |   Plus, Search, QrCode, Edit3, Trash2, Power, RotateCcw, Users, 
+ 4 |   Shield, Network, Calendar, HardDrive, ArrowUpRight, ArrowDownRight,
+   :                                         ^^^^^^|^^^^^
+   :                                               `-- 'ArrowUpRight' is imported here
+ 5 |   Sparkles, CheckCircle2, XCircle, Copy
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ArrowDownRight' is imported but never used.
+   ,-[src/components/InboundList.jsx:4:55]
+ 3 |   Plus, Search, QrCode, Edit3, Trash2, Power, RotateCcw, Users, 
+ 4 |   Shield, Network, Calendar, HardDrive, ArrowUpRight, ArrowDownRight,
+   :                                                       ^^^^^^^|^^^^^^
+   :                                                              `-- 'ArrowDownRight' is imported here
+ 5 |   Sparkles, CheckCircle2, XCircle, Copy
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Sparkles' is imported but never used.
+   ,-[src/components/InboundList.jsx:5:3]
+ 4 |   Shield, Network, Calendar, HardDrive, ArrowUpRight, ArrowDownRight,
+ 5 |   Sparkles, CheckCircle2, XCircle, Copy
+   :   ^^^^|^^^
+   :       `-- 'Sparkles' is imported here
+ 6 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'CheckCircle2' is imported but never used.
+   ,-[src/components/InboundList.jsx:5:13]
+ 4 |   Shield, Network, Calendar, HardDrive, ArrowUpRight, ArrowDownRight,
+ 5 |   Sparkles, CheckCircle2, XCircle, Copy
+   :             ^^^^^^|^^^^^
+   :                   `-- 'CheckCircle2' is imported here
+ 6 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'XCircle' is imported but never used.
+   ,-[src/components/InboundList.jsx:5:27]
+ 4 |   Shield, Network, Calendar, HardDrive, ArrowUpRight, ArrowDownRight,
+ 5 |   Sparkles, CheckCircle2, XCircle, Copy
+   :                           ^^^|^^^
+   :                              `-- 'XCircle' is imported here
+ 6 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'setSelectedStatus' is declared but never used. Unused variables should start with a '_'.
+    ,-[src/components/InboundList.jsx:21:26]
+ 20 |   const [selectedProtocol, setSelectedProtocol] = useState('all');
+ 21 |   const [selectedStatus, setSelectedStatus] = useState('all');
+    :                          ^^^^^^^^|^^^^^^^^
+    :                                  `-- 'setSelectedStatus' is declared here
+ 22 | 
+    `----
+  help: Consider removing this declaration.
+
+  ! eslint(no-unused-vars): Identifier 'CheckCircle2' is imported but never used.
+   ,-[src/components/RelayManagement.jsx:4:25]
+ 3 |   ArrowRightLeft, Plus, Search, RefreshCw, Power, Edit3, Trash2, 
+ 4 |   Server, Network, Zap, CheckCircle2, QrCode, Copy, Activity, Shield, MapPin, Link2
+   :                         ^^^^^^|^^^^^
+   :                               `-- 'CheckCircle2' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'QrCode' is imported but never used.
+   ,-[src/components/RelayManagement.jsx:4:39]
+ 3 |   ArrowRightLeft, Plus, Search, RefreshCw, Power, Edit3, Trash2, 
+ 4 |   Server, Network, Zap, CheckCircle2, QrCode, Copy, Activity, Shield, MapPin, Link2
+   :                                       ^^^|^^
+   :                                          `-- 'QrCode' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Copy' is imported but never used.
+   ,-[src/components/RelayManagement.jsx:4:47]
+ 3 |   ArrowRightLeft, Plus, Search, RefreshCw, Power, Edit3, Trash2, 
+ 4 |   Server, Network, Zap, CheckCircle2, QrCode, Copy, Activity, Shield, MapPin, Link2
+   :                                               ^^|^
+   :                                                 `-- 'Copy' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Activity' is imported but never used.
+   ,-[src/components/RelayManagement.jsx:4:53]
+ 3 |   ArrowRightLeft, Plus, Search, RefreshCw, Power, Edit3, Trash2, 
+ 4 |   Server, Network, Zap, CheckCircle2, QrCode, Copy, Activity, Shield, MapPin, Link2
+   :                                                     ^^^^|^^^
+   :                                                         `-- 'Activity' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Shield' is imported but never used.
+   ,-[src/components/RelayManagement.jsx:4:63]
+ 3 |   ArrowRightLeft, Plus, Search, RefreshCw, Power, Edit3, Trash2, 
+ 4 |   Server, Network, Zap, CheckCircle2, QrCode, Copy, Activity, Shield, MapPin, Link2
+   :                                                               ^^^|^^
+   :                                                                  `-- 'Shield' is imported here
+ 5 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Parameter 'onOpenQRModal' is declared but never used. Unused parameters should start with a '_'.
+    ,-[src/components/RelayManagement.jsx:17:54]
+ 16 | 
+ 17 | export default function RelayManagement({ showToast, onOpenQRModal, agents = PRESET_AGENTS }) {
+    :                                                      ^^^^^^|^^^^^^
+    :                                                            `-- 'onOpenQRModal' is declared here
+ 18 |   const [relays, setRelays] = useState([
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Parameter 'agents' is declared but never used. Unused parameters should start with a '_'.
+    ,-[src/components/RelayManagement.jsx:17:69]
+ 16 | 
+ 17 | export default function RelayManagement({ showToast, onOpenQRModal, agents = PRESET_AGENTS }) {
+    :                                                                     ^^^|^^
+    :                                                                        `-- 'agents' is declared here
+ 18 |   const [relays, setRelays] = useState([
+    `----
+  help: Consider removing this parameter.
+
+  ! eslint(no-unused-vars): Identifier 'Globe' is imported but never used.
+   ,-[src/components/AgentCluster.jsx:3:56]
+ 2 | import { 
+ 3 |   Server, Terminal, RefreshCw, Plus, Copy, Check, Zap, Globe,
+   :                                                        ^^|^^
+   :                                                          `-- 'Globe' is imported here
+ 4 |   Trash2, TrendingUp, Users, ArrowUpRight, ArrowDownRight, Activity,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ArrowUpRight' is imported but never used.
+   ,-[src/components/AgentCluster.jsx:4:30]
+ 3 |   Server, Terminal, RefreshCw, Plus, Copy, Check, Zap, Globe,
+ 4 |   Trash2, TrendingUp, Users, ArrowUpRight, ArrowDownRight, Activity,
+   :                              ^^^^^^|^^^^^
+   :                                    `-- 'ArrowUpRight' is imported here
+ 5 |   BarChart3, MapPin, GripVertical, LayoutGrid, List, Maximize2,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ArrowDownRight' is imported but never used.
+   ,-[src/components/AgentCluster.jsx:4:44]
+ 3 |   Server, Terminal, RefreshCw, Plus, Copy, Check, Zap, Globe,
+ 4 |   Trash2, TrendingUp, Users, ArrowUpRight, ArrowDownRight, Activity,
+   :                                            ^^^^^^^|^^^^^^
+   :                                                   `-- 'ArrowDownRight' is imported here
+ 5 |   BarChart3, MapPin, GripVertical, LayoutGrid, List, Maximize2,
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'ShieldCheck' is imported but never used.
+   ,-[src/components/AgentCluster.jsx:6:9]
+ 5 |   BarChart3, MapPin, GripVertical, LayoutGrid, List, Maximize2,
+ 6 |   Send, ShieldCheck, PlayCircle, Layers, CheckCircle2, Loader2,
+   :         ^^^^^|^^^^^
+   :              `-- 'ShieldCheck' is imported here
+ 7 |   Eye, QrCode, Code, Edit3, Settings, Key
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Layers' is imported but never used.
+   ,-[src/components/AgentCluster.jsx:6:34]
+ 5 |   BarChart3, MapPin, GripVertical, LayoutGrid, List, Maximize2,
+ 6 |   Send, ShieldCheck, PlayCircle, Layers, CheckCircle2, Loader2,
+   :                                  ^^^|^^
+   :                                     `-- 'Layers' is imported here
+ 7 |   Eye, QrCode, Code, Edit3, Settings, Key
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Settings' is imported but never used.
+   ,-[src/components/AgentCluster.jsx:7:29]
+ 6 |   Send, ShieldCheck, PlayCircle, Layers, CheckCircle2, Loader2,
+ 7 |   Eye, QrCode, Code, Edit3, Settings, Key
+   :                             ^^^^|^^^
+   :                                 `-- 'Settings' is imported here
+ 8 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Identifier 'Key' is imported but never used.
+   ,-[src/components/AgentCluster.jsx:7:39]
+ 6 |   Send, ShieldCheck, PlayCircle, Layers, CheckCircle2, Loader2,
+ 7 |   Eye, QrCode, Code, Edit3, Settings, Key
+   :                                       ^|^
+   :                                        `-- 'Key' is imported here
+ 8 | } from 'lucide-react';
+   `----
+  help: Consider removing this import.
+
+  ! eslint(no-unused-vars): Variable 'url' is declared but never used. Unused variables should start with a '_'.
+      ,-[src/components/AgentCluster.jsx:1056:25]
+ 1055 |                 {inspectNode.deployedNodes.map((inb, idx) => {
+ 1056 |                   const url = generateInboundUrl(inb, inspectNode.ip);
+      :                         ^|^
+      :                          `-- 'url' is declared here
+ 1057 |                   const isShowJson = showJsonCodeNodeId === inb.id;
+      `----
+  help: Consider removing this declaration.
+
+Found 50 warnings and 0 errors.
+Finished in 14ms on 12 files with 91 rules using 8 threads.

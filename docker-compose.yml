@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  b-agentui:
+    image: b-agentui-lite:latest
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: b-agentui-panel
+    restart: always
+    ports:
+      - "2053:2053"
+    environment:
+      - PORT=2053
+      - TZ=Asia/Shanghai
+    network_mode: host
