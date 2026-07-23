@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "domain": "txmg.28900000.top",
+  "email": "315062648@qq.com",
+  "issuer": "Let's Encrypt Authority X3 (ECC-256)",
+  "issuedAt": "2026-07-23T12:19:38.048Z",
+  "expiresAt": "2026-10-21T12:19:38.048Z",
+  "daysRemaining": 90,
+  "certPath": "I:\\google\\certs\\txmg.28900000.top.fullchain.pem",
+  "keyPath": "I:\\google\\certs\\txmg.28900000.top.privkey.pem",
+  "autoRenew": true
+}

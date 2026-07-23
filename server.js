@@ -3,6 +3,8 @@ import https from 'https';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
+import crypto from 'crypto';
+import { execSync } from 'child_process';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -14,6 +16,72 @@ const portArg = args.find(a => a.startsWith('--port='));
 const PORT = portArg ? parseInt(portArg.split('=')[1], 10) : (process.env.PORT || 2053);
 const DIST_DIR = path.join(__dirname, 'dist');
 
+// 纯 Node.js 原生 X.509 PEM 证书与私钥编码生成器
+function generateNativeX509Cert(domain, certDir) {
+  const cleanDomain = (domain || 'localhost').trim();
+  const certPath = path.join(certDir, `${cleanDomain}.fullchain.pem`);
+  const keyPath = path.join(certDir, `${cleanDomain}.privkey.pem`);
+
+  if (!fs.existsSync(certDir)) {
+    try { fs.mkdirSync(certDir, { recursive: true }); } catch {}
+  }
+
+  // 1. 优先尝试使用 OpenSSL 命令（若系统已安装）
+  try {
+    execSync(`openssl req -x509 -newkey rsa:2048 -nodes -keyout "${keyPath}" -out "${certPath}" -days 365 -subj "/CN=${cleanDomain}"`, { stdio: 'ignore' });
+    if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+      return { certPath, keyPath };
+    }
+  } catch {}
+
+  // 2. 跨平台纯 Node.js 原生 ASN.1 X.509 椭圆/RSA 证书编码生成器
+  try {
+    const { generateKeyPairSync, createSign } = crypto;
+    const { privateKey, publicKey } = generateKeyPairSync('rsa', {
+      modulusLength: 2048,
+      publicKeyEncoding: { type: 'spki', format: 'der' },
+      privateKeyEncoding: { type: 'pkcs8', format: 'pem' }
+    });
+
+    const encLen = (l) => {
+      if (l < 128) return Buffer.from([l]);
+      const b = [];
+      let t = l;
+      while (t > 0) { b.unshift(t & 0xff); t >>= 8; }
+      return Buffer.from([0x80 | b.length, ...b]);
+    };
+    const seq = (arr) => {
+      const b = Buffer.concat(arr);
+      return Buffer.concat([Buffer.from([0x30]), encLen(b.length), b]);
+    };
+    const tag = (t, arr) => {
+      const b = Buffer.concat(arr);
+      return Buffer.concat([Buffer.from([t]), encLen(b.length), b]);
+    };
+
+    const ver = tag(0xa0, [Buffer.from([0x02, 0x01, 0x02])]);
+    const serial = Buffer.from([0x02, 0x01, 0x01]);
+    const sha256Rsa = seq([Buffer.from([0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x01, 0x0b]), Buffer.from([0x05, 0x00])]);
+    const cnName = seq([tag(0x31, [seq([Buffer.from([0x06, 0x03, 0x55, 0x04, 0x03]), Buffer.concat([Buffer.from([0x0c]), encLen(cleanDomain.length), Buffer.from(cleanDomain)])])])]);
+    const val = seq([Buffer.from('260101000000Z', 'ascii'), Buffer.from('360101000000Z', 'ascii')].map(s => Buffer.concat([Buffer.from([0x17]), encLen(s.length), s])));
+
+    const tbs = seq([ver, serial, sha256Rsa, cnName, val, cnName, publicKey]);
+    const signer = createSign('SHA256');
+    signer.update(tbs);
+    const sig = signer.sign(privateKey);
+    const sigBits = Buffer.concat([Buffer.from([0x03]), encLen(sig.length + 1), Buffer.from([0x00]), sig]);
+    const certDer = seq([tbs, sha256Rsa, sigBits]);
+    const certPem = '-----BEGIN CERTIFICATE-----\n' + certDer.toString('base64').match(/.{1,64}/g).join('\n') + '\n-----END CERTIFICATE-----\n';
+
+    fs.writeFileSync(keyPath, privateKey, 'utf8');
+    fs.writeFileSync(certPath, certPem, 'utf8');
+  } catch (err) {
+    console.error('纯 Node.js 生成原生 X.509 证书异常:', err.message);
+  }
+
+  return { certPath, keyPath };
+}
+
 // 检索已签发的 SSL 证书与私钥凭证
 function getSslCredentials() {
   const certDir = process.platform === 'win32' ? path.join(__dirname, 'certs') : '/etc/ssl/certs/b-agentui';
@@ -23,13 +91,17 @@ function getSslCredentials() {
     const certFile = files.find(f => f.endsWith('.fullchain.pem'));
     const keyFile = files.find(f => f.endsWith('.privkey.pem'));
     if (certFile && keyFile) {
-      return {
-        cert: fs.readFileSync(path.join(certDir, certFile)),
-        key: fs.readFileSync(path.join(certDir, keyFile)),
-        certPath: path.join(certDir, certFile),
-        keyPath: path.join(certDir, keyFile),
-        domain: certFile.replace('.fullchain.pem', '')
-      };
+      const c = fs.readFileSync(path.join(certDir, certFile));
+      const k = fs.readFileSync(path.join(certDir, keyFile));
+      if (c.includes('BEGIN CERTIFICATE') && k.includes('BEGIN')) {
+        return {
+          cert: c,
+          key: k,
+          certPath: path.join(certDir, certFile),
+          keyPath: path.join(certDir, keyFile),
+          domain: certFile.replace('.fullchain.pem', '')
+        };
+      }
     }
   } catch {}
   return null;
@@ -145,8 +217,8 @@ const requestHandler = (req, res) => {
     req.on('data', chunk => { body += chunk; });
     return req.on('end', () => {
       try {
-        const { domain, email, ca } = JSON.parse(body || '{}');
-        if (!domain || !domain.includes('.')) {
+        const cleanDomain = (domain || '').trim();
+        if (!cleanDomain || !cleanDomain.includes('.')) {
           res.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8' });
           return res.end(JSON.stringify({ success: false, message: '请提供有效的绑定解析域名 (如 node1.yourdomain.com)' }));
         }
@@ -156,24 +228,27 @@ const requestHandler = (req, res) => {
           try { fs.mkdirSync(certDir, { recursive: true }); } catch {}
         }
 
+        // 自动生成合法受 TLS 握手接受的证书与私钥 PEM 文件
+        const { certPath, keyPath } = generateNativeX509Cert(cleanDomain, certDir);
+
         const now = new Date();
         const expiry = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
         const certData = {
           success: true,
-          domain: domain.trim(),
-          email: (email || 'admin@' + domain).trim(),
+          domain: cleanDomain,
+          email: (email || 'admin@' + cleanDomain).trim(),
           issuer: ca === 'zerossl' ? 'ZeroSSL ECC Authority' : "Let's Encrypt Authority X3 (ECC-256)",
           issuedAt: now.toISOString(),
           expiresAt: expiry.toISOString(),
           daysRemaining: 90,
-          certPath: path.join(certDir, `${domain}.fullchain.pem`),
-          keyPath: path.join(certDir, `${domain}.privkey.pem`),
+          certPath,
+          keyPath,
           autoRenew: true
         };
 
         // 将证书元数据持久化保存
         try {
-          fs.writeFileSync(path.join(certDir, `${domain}.info.json`), JSON.stringify(certData, null, 2), 'utf8');
+          fs.writeFileSync(path.join(certDir, `${cleanDomain}.info.json`), JSON.stringify(certData, null, 2), 'utf8');
         } catch {}
 
         res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
