@@ -150,7 +150,7 @@ const requestHandler = (req, res) => {
       if (publicIp.includes('::ffff:')) publicIp = publicIp.replace('::ffff:', '');
     }
     res.writeHead(200, { 'Content-Type': 'application/json; charset=utf-8' });
-    return res.end(JSON.stringify({ ip: publicIp, port: PORT, version: 'v1.4.0-beta' }));
+    return res.end(JSON.stringify({ ip: publicIp, port: PORT, version: 'v1.4.1' }));
   }
 
   // 后台系统设置持久化接口 (/api/settings)

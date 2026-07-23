@@ -73,7 +73,7 @@ if [ -d "./dist" ] && [ -f "./server.js" ]; then
     cp -f ./package.json "${INSTALL_DIR}/" 2>/dev/null || true
 else
     echo -e "${CYAN}正在从 GitHub Release 下载 B-AgentUI Lite (Beta) 稳定离线包...${NC}"
-    DOWNLOAD_URL="https://github.com/binshao1230/B-AgentUI/releases/download/v1.4.0-beta/B-AgentUI-Lite-Beta-v1.4.0-linux.tar.gz"
+    DOWNLOAD_URL="https://github.com/binshao1230/B-AgentUI/releases/download/v1.4.1/B-AgentUI-Lite-v1.4.1-linux.tar.gz"
     curl -L -o /tmp/b-agentui.tar.gz "${DOWNLOAD_URL}"
     tar -xzf /tmp/b-agentui.tar.gz -C "${INSTALL_DIR}"
     rm -f /tmp/b-agentui.tar.gz
