@@ -5,7 +5,7 @@ export default function RoutingRules({ showToast }) {
   const [presetRules, setPresetRules] = useState(() => {
     const saved = localStorage.getItem('b_agentui_presetRules');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try { return JSON.parse(saved); } catch {}
     }
     return [
       { id: 1, name: '全杀广告与追踪器 (GeoSite Ads)', category: 'geosite:category-ads-all', action: 'block', enabled: true, desc: '自动拦截绝大多数网络广告、数据追踪及恶意分析节点' },
@@ -19,7 +19,7 @@ export default function RoutingRules({ showToast }) {
   const [customRules, setCustomRules] = useState(() => {
     const saved = localStorage.getItem('b_agentui_customRules');
     if (saved) {
-      try { return JSON.parse(saved); } catch (e) {}
+      try { return JSON.parse(saved); } catch {}
     }
     return [
       { id: 101, domain: 'google.com, github.com', outbound: 'proxy' }

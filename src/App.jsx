@@ -14,7 +14,7 @@ import AgentCluster from './components/AgentCluster';
 import './App.css';
 
 export default function App() {
-  const [theme, setTheme] = useState('dark');
+  const [theme, setTheme] = useState(() => localStorage.getItem('b_agentui_theme') || 'dark');
   const [activeTab, setActiveTab] = useState('dashboard');
   const [toastMessage, setToastMessage] = useState(null);
   
@@ -23,7 +23,7 @@ export default function App() {
     if (saved) {
       try {
         return JSON.parse(saved);
-      } catch (e) {
+      } catch {
         return [];
       }
     }
@@ -64,20 +64,23 @@ export default function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-    // 自动请求后端获取真实公网地址
+    localStorage.setItem('b_agentui_theme', theme);
+  }, [theme]);
+
+  // 自动请求后端获取真实公网地址（仅初始化时执行一次）
+  useEffect(() => {
     fetch('/api/ip').then(res => res.json()).then(data => {
       if (data && data.ip && data.ip !== '127.0.0.1') {
         setServerIp(data.ip);
       }
     }).catch(() => {
-      // 降级使用 API 识别公网 IP
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => {
           if (d && d.ip) setServerIp(d.ip);
         }).catch(() => {});
       }
     });
-  }, [theme]);
+  }, []);
 
   const toggleTheme = () => {
     const nextTheme = theme === 'light' ? 'dark' : 'light';
@@ -85,9 +88,11 @@ export default function App() {
     showToast(nextTheme === 'light' ? '已切换至浅色主题 ☀️' : '已切换至暗黑主题 🌙');
   };
 
+  const toastTimerRef = React.useRef(null);
   const showToast = (msg) => {
     setToastMessage(msg);
-    setTimeout(() => setToastMessage(null), 3000);
+    if (toastTimerRef.current) clearTimeout(toastTimerRef.current);
+    toastTimerRef.current = setTimeout(() => setToastMessage(null), 3000);
   };
 
   const handleCopyIp = () => {
@@ -101,7 +106,7 @@ export default function App() {
       textArea.select();
       try {
         document.execCommand('copy');
-      } catch (err) {}
+      } catch {}
       document.body.removeChild(textArea);
     }
     setServerIpCopied(true);
@@ -147,13 +152,16 @@ export default function App() {
   };
 
   const handleSaveInbound = (inboundData) => {
-    if (editingInbound) {
-      setInbounds(prev => prev.map(i => i.id === inboundData.id ? inboundData : i));
-      showToast(`节点 [${inboundData.remark}] 修改保存成功！`);
-    } else {
-      setInbounds(prev => [inboundData, ...prev]);
-      showToast(`成功创建节点 [${inboundData.remark}]！`);
-    }
+    setInbounds(prev => {
+      const exists = prev.some(i => i.id === inboundData.id);
+      if (exists) {
+        showToast(`节点 [${inboundData.remark}] 修改保存成功！`);
+        return prev.map(i => i.id === inboundData.id ? inboundData : i);
+      } else {
+        showToast(`成功创建节点 [${inboundData.remark}]！`);
+        return [inboundData, ...prev];
+      }
+    });
     setIsInboundModalOpen(false);
     setEditingInbound(null);
   };

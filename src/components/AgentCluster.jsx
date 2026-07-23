@@ -230,7 +230,7 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
     }));
     try {
       localStorage.setItem('b_agentui_nodes', JSON.stringify(toSave));
-    } catch (e) {}
+    } catch {}
     // 通知父组件节点数量变化
     if (onNodesChange) onNodesChange(nodes.length);
   }, [nodes, onNodesChange]);
@@ -637,8 +637,9 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
           if (syncTabMode === 'preset') {
             newPushedNodes = inbounds.filter(i => selectedInboundIds.includes(i.id));
           } else {
+            const existingId = customInboundForm.id;
             const customNode = {
-              id: Date.now(),
+              id: existingId || Date.now(),
               remark: customInboundForm.remark,
               protocol: customInboundForm.protocol,
               method: customInboundForm.method || '2022-blake3-aes-128-gcm',
@@ -653,7 +654,14 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
               path: customInboundForm.path,
               clients: [{ id: customInboundForm.password || generateUUID(), email: `user@${n.id}` }]
             };
-            newPushedNodes = [customNode, ...(n.deployedNodes || [])];
+
+            const existingList = n.deployedNodes || [];
+            const isEditing = existingId && existingList.some(item => item.id === existingId);
+            if (isEditing) {
+              newPushedNodes = existingList.map(item => item.id === existingId ? customNode : item);
+            } else {
+              newPushedNodes = [customNode, ...existingList];
+            }
           }
           return { ...n, deployedNodes: newPushedNodes, activeInbounds: newPushedNodes.length };
         }
@@ -1208,7 +1216,7 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
                   const isShowJson = showJsonCodeNodeId === inb.id;
 
                   return (
-                    <div key={inb.id || idx} className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <div key={inb.id ?? idx} className="glass-card" style={{ padding: '16px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
                       
                       {/* Header */}
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

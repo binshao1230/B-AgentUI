@@ -107,8 +107,16 @@ export default function SystemSettings({ inbounds, showToast, onRestoreInbounds 
             if (onRestoreInbounds) {
               onRestoreInbounds(parsed.inbounds);
             }
-            showToast('备份文件校验成功，已恢复数据配置！请刷新页面。');
           }
+          if (parsed.settings) {
+            localStorage.setItem('b_agentui_settings', JSON.stringify(parsed.settings));
+            fetch('/api/settings', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(parsed.settings)
+            }).catch(() => {});
+          }
+          showToast('备份文件校验成功，已完美恢复入站及面板系统配置！');
         } catch {
           showToast('备份 JSON 解析失败！');
         }

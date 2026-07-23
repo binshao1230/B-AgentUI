@@ -9,9 +9,10 @@ export default function QRCodeModal({ isOpen, onClose, inbound, serverIp, showTo
 
   if (!isOpen || !inbound) return null;
 
-  const nodeUrl = generateInboundUrl(inbound, serverIp);
-  const clashYaml = generateClashMetaYaml(inbound, serverIp);
-  const singBoxJson = generateSingBoxJson(inbound, serverIp);
+  const targetHost = inbound.address || inbound.ip || serverIp;
+  const nodeUrl = generateInboundUrl(inbound, targetHost);
+  const clashYaml = generateClashMetaYaml(inbound, targetHost);
+  const singBoxJson = generateSingBoxJson(inbound, targetHost);
 
   const handleCopy = (text, label) => {
     if (navigator.clipboard && window.isSecureContext) {
@@ -24,7 +25,7 @@ export default function QRCodeModal({ isOpen, onClose, inbound, serverIp, showTo
       textArea.select();
       try {
         document.execCommand('copy');
-      } catch (err) {}
+      } catch {}
       document.body.removeChild(textArea);
     }
     setCopied(true);

@@ -61,7 +61,8 @@ const server = http.createServer((req, res) => {
 
   // 后台系统设置持久化接口 (/api/settings)
   if (reqUrl === '/api/settings') {
-    const configPath = fs.existsSync('/usr/local/b-agentui') ? '/usr/local/b-agentui/server-config.json' : path.join(__dirname, 'server-config.json');
+    const linuxConfigPath = '/usr/local/b-agentui/server-config.json';
+    const configPath = (process.platform !== 'win32' && fs.existsSync('/usr/local/b-agentui')) ? linuxConfigPath : path.join(__dirname, 'server-config.json');
     if (req.method === 'GET') {
       let cfg = { panelPort: PORT, secretPath: '/panel/', username: 'admin', tgBotToken: '', tgChatId: '' };
       if (fs.existsSync(configPath)) {

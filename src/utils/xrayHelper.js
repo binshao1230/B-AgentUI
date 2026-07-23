@@ -40,6 +40,7 @@ export function formatBytes(bytes, decimals = 2) {
 
 // Generate Protocol Subscription URLs (vless://, vmess://, etc.)
 export function generateInboundUrl(inbound, host = window.location.hostname || '127.0.0.1') {
+  const effectiveHost = inbound.address || inbound.ip || host;
   const remark = encodeURIComponent(`${inbound.remark} [3X-Lite]`);
   const clientUuid = inbound.clients?.[0]?.id || generateUUID();
 
@@ -54,11 +55,11 @@ export function generateInboundUrl(inbound, host = window.location.hostname || '
       const sid = inbound.shortId || 'a1b2c3d4';
       const fp = inbound.fingerprint || 'chrome';
       const flow = inbound.flow || 'xtls-rprx-vision';
-      return `vless://${clientUuid}@${host}:${inbound.port}?type=${inbound.network}&security=reality&pbk=${pbk}&fp=${fp}&sni=${sni}&sid=${sid}&flow=${flow}${netParams}#${remark}`;
+      return `vless://${clientUuid}@${effectiveHost}:${inbound.port}?type=${inbound.network}&security=reality&pbk=${pbk}&fp=${fp}&sni=${sni}&sid=${sid}&flow=${flow}${netParams}#${remark}`;
     } else if (inbound.security === 'tls') {
-      return `vless://${clientUuid}@${host}:${inbound.port}?type=${inbound.network}&security=tls&sni=${inbound.sni || host}${netParams}#${remark}`;
+      return `vless://${clientUuid}@${effectiveHost}:${inbound.port}?type=${inbound.network}&security=tls&sni=${inbound.sni || effectiveHost}${netParams}#${remark}`;
     } else {
-      return `vless://${clientUuid}@${host}:${inbound.port}?type=${inbound.network}&security=none${netParams}#${remark}`;
+      return `vless://${clientUuid}@${effectiveHost}:${inbound.port}?type=${inbound.network}&security=none${netParams}#${remark}`;
     }
   } 
   
@@ -66,7 +67,7 @@ export function generateInboundUrl(inbound, host = window.location.hostname || '
     const vmessConfig = {
       v: "2",
       ps: `${inbound.remark} [3X-Lite]`,
-      add: host,
+      add: effectiveHost,
       port: inbound.port,
       id: clientUuid,
       aid: 0,
@@ -83,31 +84,32 @@ export function generateInboundUrl(inbound, host = window.location.hostname || '
 
   if (inbound.protocol === 'trojan') {
     const pass = inbound.password || clientUuid;
-    const sni = inbound.sni || host;
+    const sni = inbound.sni || effectiveHost;
     let netParams = '';
     if (inbound.network === 'ws' && inbound.path) netParams += `&path=${encodeURIComponent(inbound.path)}`;
     if (inbound.network === 'grpc' && inbound.serviceName) netParams += `&serviceName=${encodeURIComponent(inbound.serviceName)}`;
-    return `trojan://${pass}@${host}:${inbound.port}?type=${inbound.network}&security=tls&sni=${sni}${netParams}#${remark}`;
+    return `trojan://${pass}@${effectiveHost}:${inbound.port}?type=${inbound.network}&security=tls&sni=${sni}${netParams}#${remark}`;
   }
 
   if (inbound.protocol === 'shadowsocks') {
     const method = inbound.method || '2022-blake3-aes-128-gcm';
     const pass = inbound.password || 'secretPass123';
     const userinfo = btoa(unescape(encodeURIComponent(`${method}:${pass}`)));
-    return `ss://${userinfo}@${host}:${inbound.port}#${remark}`;
+    return `ss://${userinfo}@${effectiveHost}:${inbound.port}#${remark}`;
   }
 
   if (inbound.protocol === 'hysteria2') {
     const auth = inbound.password || 'secretPass123';
-    const sni = inbound.sni || host;
-    return `hysteria2://${auth}@${host}:${inbound.port}?insecure=1&sni=${sni}#${remark}`;
+    const sni = inbound.sni || effectiveHost;
+    return `hysteria2://${auth}@${effectiveHost}:${inbound.port}?insecure=1&sni=${sni}#${remark}`;
   }
 
-  return `vless://${clientUuid}@${host}:${inbound.port}#${remark}`;
+  return `vless://${clientUuid}@${effectiveHost}:${inbound.port}#${remark}`;
 }
 
 // Generate Clash Meta YAML configuration snippet
 export function generateClashMetaYaml(inbound, host = window.location.hostname || '127.0.0.1') {
+  const effectiveHost = inbound.address || inbound.ip || host;
   const clientUuid = inbound.clients?.[0]?.id || generateUUID();
   const name = `${inbound.remark} - ${inbound.protocol.toUpperCase()}`;
 
@@ -115,7 +117,7 @@ export function generateClashMetaYaml(inbound, host = window.location.hostname |
     return `proxies:
   - name: "${name}"
     type: vless
-    server: ${host}
+    server: ${effectiveHost}
     port: ${inbound.port}
     uuid: ${clientUuid}
     udp: true
@@ -132,7 +134,7 @@ export function generateClashMetaYaml(inbound, host = window.location.hostname |
 proxies:
   - name: "${name}"
     type: ${inbound.protocol}
-    server: ${host}
+    server: ${effectiveHost}
     port: ${inbound.port}
     uuid: ${clientUuid}
     udp: true`;
@@ -140,12 +142,13 @@ proxies:
 
 // Generate Sing-Box JSON outbound snippet
 export function generateSingBoxJson(inbound, host = window.location.hostname || '127.0.0.1') {
+  const effectiveHost = inbound.address || inbound.ip || host;
   const clientUuid = inbound.clients?.[0]?.id || generateUUID();
   
   const outbound = {
     type: inbound.protocol,
     tag: `${inbound.remark}-out`,
-    server: host,
+    server: effectiveHost,
     server_port: inbound.port,
     uuid: clientUuid,
     flow: inbound.flow || undefined,
