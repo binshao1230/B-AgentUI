@@ -657,6 +657,19 @@ export default function SystemSettings({ inbounds, showToast, onRestoreInbounds 
                       {copiedKeyPath ? <Check size={12} color="#10b981" /> : <Copy size={12} />} {copiedKeyPath ? '已复制' : '复制路径'}
                     </button>
                   </div>
+
+                  {/* 快捷跳转 HTTPS 访问按钮 */}
+                  <div style={{ marginTop: '4px' }}>
+                    <a 
+                      href={`https://${certInfo.domain}:${panelPort}`} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="btn-primary btn-sm"
+                      style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', textDecoration: 'none', background: 'linear-gradient(135deg, #059669, #10b981)', padding: '8px 12px' }}
+                    >
+                      <Lock size={14} /> 🔒 打开 HTTPS 安全面板 (https://{certInfo.domain}:{panelPort})
+                    </a>
+                  </div>
                 </div>
               </div>
             )}

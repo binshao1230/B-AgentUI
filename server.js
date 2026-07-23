@@ -1,4 +1,5 @@
 import http from 'http';
+import https from 'https';
 import fs from 'fs';
 import path from 'path';
 import os from 'os';
@@ -12,6 +13,27 @@ const args = process.argv.slice(2);
 const portArg = args.find(a => a.startsWith('--port='));
 const PORT = portArg ? parseInt(portArg.split('=')[1], 10) : (process.env.PORT || 2053);
 const DIST_DIR = path.join(__dirname, 'dist');
+
+// 检索已签发的 SSL 证书与私钥凭证
+function getSslCredentials() {
+  const certDir = process.platform === 'win32' ? path.join(__dirname, 'certs') : '/etc/ssl/certs/b-agentui';
+  if (!fs.existsSync(certDir)) return null;
+  try {
+    const files = fs.readdirSync(certDir);
+    const certFile = files.find(f => f.endsWith('.fullchain.pem'));
+    const keyFile = files.find(f => f.endsWith('.privkey.pem'));
+    if (certFile && keyFile) {
+      return {
+        cert: fs.readFileSync(path.join(certDir, certFile)),
+        key: fs.readFileSync(path.join(certDir, keyFile)),
+        certPath: path.join(certDir, certFile),
+        keyPath: path.join(certDir, keyFile),
+        domain: certFile.replace('.fullchain.pem', '')
+      };
+    }
+  } catch {}
+  return null;
+}
 
 // MIME 映射
 const MIME_TYPES = {
@@ -29,7 +51,7 @@ const MIME_TYPES = {
   '.ttf': 'font/ttf'
 };
 
-const server = http.createServer((req, res) => {
+const requestHandler = (req, res) => {
   // CORS 和基本头
   res.setHeader('X-Powered-By', 'B-AgentUI-Lite-Engine');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -210,12 +232,36 @@ const server = http.createServer((req, res) => {
       res.end(content, 'utf-8');
     }
   });
-});
+};
 
-server.listen(PORT, '0.0.0.0', () => {
+const sslCreds = getSslCredentials();
+let mainServer;
+let isHttps = false;
+
+if (sslCreds) {
+  try {
+    mainServer = https.createServer({ key: sslCreds.key, cert: sslCreds.cert }, requestHandler);
+    isHttps = true;
+  } catch (err) {
+    console.error('⚠️ 加载 SSL 证书凭证失败，自动降级为 HTTP 协议启动:', err.message);
+    mainServer = http.createServer(requestHandler);
+  }
+} else {
+  mainServer = http.createServer(requestHandler);
+}
+
+mainServer.listen(PORT, '0.0.0.0', () => {
   console.log('====================================================');
   console.log(`⚡ B-AgentUI Lite (Beta) - 极速多节点 Xray 面板启动成功!`);
-  console.log(`🌐 监听地址: http://0.0.0.0:${PORT}`);
+  if (isHttps) {
+    console.log(`🔒 协议模式: HTTPS (TLS 加密传输)`);
+    console.log(`🌐 监听地址: https://0.0.0.0:${PORT}`);
+    if (sslCreds && sslCreds.domain) {
+      console.log(`🔑 绑定域名: https://${sslCreds.domain}:${PORT}`);
+    }
+  } else {
+    console.log(`🌐 监听地址: http://0.0.0.0:${PORT}`);
+  }
   console.log(`📂 静态资源路径: ${DIST_DIR}`);
   console.log('====================================================');
 });
