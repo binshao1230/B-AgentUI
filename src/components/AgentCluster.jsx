@@ -8,6 +8,26 @@ import {
 } from 'lucide-react';
 import { formatBytes, generateInboundUrl, generateUUID, generateRealityKeyPair, generateShortId } from '../utils/xrayHelper';
 
+const safeCopy = (text) => {
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).catch(() => {
+      fallbackCopy(text);
+    });
+  } else {
+    fallbackCopy(text);
+  }
+};
+const fallbackCopy = (text) => {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  document.execCommand('copy');
+  document.body.removeChild(ta);
+};
+
 const REGION_PRESETS = [
   { value: '🇨🇳 广东广州', label: '🇨🇳 广东广州' },
   { value: '🇨🇳 广东深圳', label: '🇨🇳 广东深圳' },
@@ -208,7 +228,9 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
       upSpeed: 0,
       downSpeed: 0
     }));
-    localStorage.setItem('b_agentui_nodes', JSON.stringify(toSave));
+    try {
+      localStorage.setItem('b_agentui_nodes', JSON.stringify(toSave));
+    } catch (e) {}
     // 通知父组件节点数量变化
     if (onNodesChange) onNodesChange(nodes.length);
   }, [nodes, onNodesChange]);
@@ -280,7 +302,9 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
     privateKey: '',
     shortId: '',
     password: '',
-    path: '/ws-path'
+    path: '/ws-path',
+    method: '2022-blake3-aes-128-gcm',
+    flow: 'none'
   });
 
   const [selectedSyncTemplateId, setSelectedSyncTemplateId] = useState('');
@@ -395,7 +419,7 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
     setSelectedNodeCmd({ node, cmd });
     setIsDeployModalOpen(true);
   };
-  const handleCopyDeployCmd = (cmd) => { navigator.clipboard.writeText(cmd); setCopiedCmd(true); showToast('部署命令已复制！'); setTimeout(() => setCopiedCmd(false), 2000); };
+  const handleCopyDeployCmd = (cmd) => { safeCopy(cmd); setCopiedCmd(true); showToast('部署命令已复制！'); setTimeout(() => setCopiedCmd(false), 2000); };
   
   const handleAddAgentNode = (e) => {
     e.preventDefault();
@@ -498,8 +522,8 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
           setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, status: 'online', latency } : n));
           showToast(`✅ [${targetNode.name}] 连接正常！延迟 ${latency}ms`);
         } else {
-          setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, status: 'online', latency } : n));
-          showToast(`✅ [${targetNode.name}] 探测完成，延迟 ${latency}ms`);
+          setNodes(prev => prev.map(n => n.id === nodeId ? { ...n, status: 'offline', latency } : n));
+          showToast(`❌ [${targetNode.name}] 连接失败，节点不可达`);
         }
       })
       .catch(() => {
@@ -539,7 +563,7 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
 
   const handleCopyAgentInboundUrl = (inbound, hostIp) => {
     const url = generateInboundUrl(inbound, hostIp);
-    navigator.clipboard.writeText(url);
+    safeCopy(url);
     setCopiedLinkNodeId(inbound.id);
     showToast(`AGENT 专属节点链接 [${inbound.remark}] 已复制！`);
     setTimeout(() => setCopiedLinkNodeId(null), 2000);
@@ -618,7 +642,7 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
               remark: customInboundForm.remark,
               protocol: customInboundForm.protocol,
               method: customInboundForm.method || '2022-blake3-aes-128-gcm',
-              port: parseInt(customInboundForm.port, 10),
+              port: parseInt(customInboundForm.port, 10) || 443,
               network: customInboundForm.network,
               security: customInboundForm.security,
               sni: customInboundForm.sni,
@@ -837,8 +861,8 @@ export default function AgentCluster({ inbounds = [], showToast, onOpenQRModal, 
                     <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '2px' }}><MapPin size={10} /> {node.region}</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.68rem', fontWeight: '600', color: node.status==='online'?'#047857':'#be123c', background: node.status==='online'?'#d1fae5':'#ffe4e6', padding: '3px 8px', borderRadius: '10px', border: node.status==='online'?'1px solid #a7f3d0':'1px solid #fecdd3', flexShrink: 0 }}>
-                  <div className={`pulse-dot ${node.status}`} style={{ width: '5px', height: '5px' }} />{node.status==='online'?'在线':'离线'}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '5px', fontSize: '0.68rem', fontWeight: '600', color: node.status==='online'?'#047857':node.status==='checking'?'#b45309':'#be123c', background: node.status==='online'?'#d1fae5':node.status==='checking'?'#fef3c7':'#ffe4e6', padding: '3px 8px', borderRadius: '10px', border: node.status==='online'?'1px solid #a7f3d0':node.status==='checking'?'1px solid #fde68a':'1px solid #fecdd3', flexShrink: 0 }}>
+                  <div className={`pulse-dot ${node.status}`} style={{ width: '5px', height: '5px' }} />{node.status==='online'?'在线':node.status==='checking'?'检测中':'离线'}
                 </div>
               </div>
 

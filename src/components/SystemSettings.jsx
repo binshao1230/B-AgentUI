@@ -4,11 +4,11 @@ import {
   Database
 } from 'lucide-react';
 
-export default function SystemSettings({ inbounds, showToast }) {
+export default function SystemSettings({ inbounds, showToast, onRestoreInbounds }) {
   const [panelPort, setPanelPort] = useState(2053);
   const [secretPath, setSecretPath] = useState('/panel/');
   const [adminUser, setAdminUser] = useState('admin');
-  const [adminPassword, setAdminPassword] = useState('••••••••••••');
+  const [adminPassword, setAdminPassword] = useState('');
   
   const [acmeDomain, setAcmeDomain] = useState('');
   const [acmeEmail, setAcmeEmail] = useState('');
@@ -103,7 +103,11 @@ export default function SystemSettings({ inbounds, showToast }) {
         try {
           const parsed = JSON.parse(e.target.result);
           if (parsed.inbounds) {
-            showToast('备份文件校验成功，已恢复数据配置！');
+            localStorage.setItem('b_agentui_inbounds', JSON.stringify(parsed.inbounds));
+            if (onRestoreInbounds) {
+              onRestoreInbounds(parsed.inbounds);
+            }
+            showToast('备份文件校验成功，已恢复数据配置！请刷新页面。');
           }
         } catch {
           showToast('备份 JSON 解析失败！');

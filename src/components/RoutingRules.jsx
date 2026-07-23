@@ -1,18 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Shield, Globe, Plus, Trash2, ToggleLeft, ToggleRight } from 'lucide-react';
 
 export default function RoutingRules({ showToast }) {
-  const [presetRules, setPresetRules] = useState([
-    { id: 1, name: '全杀广告与追踪器 (GeoSite Ads)', category: 'geosite:category-ads-all', action: 'block', enabled: true, desc: '自动拦截绝大多数网络广告、数据追踪及恶意分析节点' },
-    { id: 2, name: 'P2P / BT 种子下载拦截', category: 'protocol: bittorrent', action: 'block', enabled: true, desc: '防止 VPS IP 因 BT 违规下载导致被机房封禁或收到投诉信' },
-    { id: 3, name: '中国大陆 IP 域名直连 (CN Direct)', category: 'geoip:cn, geosite:cn', action: 'direct', enabled: true, desc: '国内流量不经过代理，提升访问速度并节省服务器流量' },
-    { id: 4, name: '局域网与私有 IP 直连 (LAN Private)', category: 'geoip:private', action: 'direct', enabled: true, desc: '127.0.0.1, 192.168.x.x 等私有网段直连' },
-    { id: 5, name: '赌博与高风险欺诈站点拦截', category: 'geosite:gambling', action: 'block', enabled: false, desc: '屏蔽已知的涉赌与钓鱼风险网站' }
-  ]);
+  const [presetRules, setPresetRules] = useState(() => {
+    const saved = localStorage.getItem('b_agentui_presetRules');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return [
+      { id: 1, name: '全杀广告与追踪器 (GeoSite Ads)', category: 'geosite:category-ads-all', action: 'block', enabled: true, desc: '自动拦截绝大多数网络广告、数据追踪及恶意分析节点' },
+      { id: 2, name: 'P2P / BT 种子下载拦截', category: 'protocol: bittorrent', action: 'block', enabled: true, desc: '防止 VPS IP 因 BT 违规下载导致被机房封禁或收到投诉信' },
+      { id: 3, name: '中国大陆 IP 域名直连 (CN Direct)', category: 'geoip:cn, geosite:cn', action: 'direct', enabled: true, desc: '国内流量不经过代理，提升访问速度并节省服务器流量' },
+      { id: 4, name: '局域网与私有 IP 直连 (LAN Private)', category: 'geoip:private', action: 'direct', enabled: true, desc: '127.0.0.1, 192.168.x.x 等私有网段直连' },
+      { id: 5, name: '赌博与高风险欺诈站点拦截', category: 'geosite:gambling', action: 'block', enabled: false, desc: '屏蔽已知的涉赌与钓鱼风险网站' }
+    ];
+  });
 
-  const [customRules, setCustomRules] = useState([
-    { id: 101, domain: 'google.com, github.com', outbound: 'proxy' }
-  ]);
+  const [customRules, setCustomRules] = useState(() => {
+    const saved = localStorage.getItem('b_agentui_customRules');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return [
+      { id: 101, domain: 'google.com, github.com', outbound: 'proxy' }
+    ];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('b_agentui_presetRules', JSON.stringify(presetRules));
+  }, [presetRules]);
+
+  useEffect(() => {
+    localStorage.setItem('b_agentui_customRules', JSON.stringify(customRules));
+  }, [customRules]);
 
   const [newDomain, setNewDomain] = useState('');
   const [newOutbound, setNewOutbound] = useState('proxy');

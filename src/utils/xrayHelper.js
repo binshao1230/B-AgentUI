@@ -28,31 +28,37 @@ export function generateRealityKeyPair() {
 }
 
 export function formatBytes(bytes, decimals = 2) {
-  if (!bytes || bytes === 0) return '0 B';
+  if (!bytes || bytes <= 0) return '0 B';
   const k = 1024;
   const dm = decimals < 0 ? 0 : decimals;
   const sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB'];
-  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  let i = Math.floor(Math.log(bytes) / Math.log(k));
+  if (i < 0) i = 0;
+  if (i >= sizes.length) i = sizes.length - 1;
   return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
 }
 
 // Generate Protocol Subscription URLs (vless://, vmess://, etc.)
-export function generateInboundUrl(inbound, host = '154.21.98.110') {
+export function generateInboundUrl(inbound, host = window.location.hostname || '127.0.0.1') {
   const remark = encodeURIComponent(`${inbound.remark} [3X-Lite]`);
   const clientUuid = inbound.clients?.[0]?.id || generateUUID();
 
   if (inbound.protocol === 'vless') {
+    let netParams = '';
+    if (inbound.network === 'ws' && inbound.path) netParams += `&path=${encodeURIComponent(inbound.path)}`;
+    if (inbound.network === 'grpc' && inbound.serviceName) netParams += `&serviceName=${encodeURIComponent(inbound.serviceName)}`;
+
     if (inbound.security === 'reality') {
       const pbk = inbound.publicKey || '0123456789abcdef0123456789abcdef01234567';
       const sni = inbound.sni || 'dl.google.com';
       const sid = inbound.shortId || 'a1b2c3d4';
       const fp = inbound.fingerprint || 'chrome';
       const flow = inbound.flow || 'xtls-rprx-vision';
-      return `vless://${clientUuid}@${host}:${inbound.port}?type=${inbound.network}&security=reality&pbk=${pbk}&fp=${fp}&sni=${sni}&sid=${sid}&flow=${flow}#${remark}`;
+      return `vless://${clientUuid}@${host}:${inbound.port}?type=${inbound.network}&security=reality&pbk=${pbk}&fp=${fp}&sni=${sni}&sid=${sid}&flow=${flow}${netParams}#${remark}`;
     } else if (inbound.security === 'tls') {
-      return `vless://${clientUuid}@${host}:${inbound.port}?type=${inbound.network}&security=tls&sni=${inbound.sni || host}#${remark}`;
+      return `vless://${clientUuid}@${host}:${inbound.port}?type=${inbound.network}&security=tls&sni=${inbound.sni || host}${netParams}#${remark}`;
     } else {
-      return `vless://${clientUuid}@${host}:${inbound.port}?type=${inbound.network}&security=none#${remark}`;
+      return `vless://${clientUuid}@${host}:${inbound.port}?type=${inbound.network}&security=none${netParams}#${remark}`;
     }
   } 
   
@@ -72,20 +78,23 @@ export function generateInboundUrl(inbound, host = '154.21.98.110') {
       tls: inbound.security === 'tls' ? "tls" : "",
       sni: inbound.sni || ""
     };
-    return "vmess://" + btoa(JSON.stringify(vmessConfig));
+    return "vmess://" + btoa(unescape(encodeURIComponent(JSON.stringify(vmessConfig))));
   }
 
   if (inbound.protocol === 'trojan') {
     const pass = inbound.password || clientUuid;
     const sni = inbound.sni || host;
-    return `trojan://${pass}@${host}:${inbound.port}?type=${inbound.network}&security=tls&sni=${sni}#${remark}`;
+    let netParams = '';
+    if (inbound.network === 'ws' && inbound.path) netParams += `&path=${encodeURIComponent(inbound.path)}`;
+    if (inbound.network === 'grpc' && inbound.serviceName) netParams += `&serviceName=${encodeURIComponent(inbound.serviceName)}`;
+    return `trojan://${pass}@${host}:${inbound.port}?type=${inbound.network}&security=tls&sni=${sni}${netParams}#${remark}`;
   }
 
   if (inbound.protocol === 'shadowsocks') {
     const method = inbound.method || '2022-blake3-aes-128-gcm';
     const pass = inbound.password || 'secretPass123';
-    const raw = `${method}:${pass}@${host}:${inbound.port}`;
-    return `ss://${btoa(raw)}#${remark}`;
+    const userinfo = btoa(unescape(encodeURIComponent(`${method}:${pass}`)));
+    return `ss://${userinfo}@${host}:${inbound.port}#${remark}`;
   }
 
   if (inbound.protocol === 'hysteria2') {
@@ -98,7 +107,7 @@ export function generateInboundUrl(inbound, host = '154.21.98.110') {
 }
 
 // Generate Clash Meta YAML configuration snippet
-export function generateClashMetaYaml(inbound, host = '154.21.98.110') {
+export function generateClashMetaYaml(inbound, host = window.location.hostname || '127.0.0.1') {
   const clientUuid = inbound.clients?.[0]?.id || generateUUID();
   const name = `${inbound.remark} - ${inbound.protocol.toUpperCase()}`;
 
@@ -130,7 +139,7 @@ proxies:
 }
 
 // Generate Sing-Box JSON outbound snippet
-export function generateSingBoxJson(inbound, host = '154.21.98.110') {
+export function generateSingBoxJson(inbound, host = window.location.hostname || '127.0.0.1') {
   const clientUuid = inbound.clients?.[0]?.id || generateUUID();
   
   const outbound = {

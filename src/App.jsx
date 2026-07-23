@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { 
   Activity, Layers, Shield, Settings, Zap, 
   Server, Copy, Check, RefreshCw, Sun, Moon, ArrowRightLeft 
@@ -18,9 +18,31 @@ export default function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [toastMessage, setToastMessage] = useState(null);
   
-  const [inbounds, setInbounds] = useState([]);
+  const [inbounds, setInbounds] = useState(() => {
+    const saved = localStorage.getItem('b_agentui_inbounds');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {
+        return [];
+      }
+    }
+    return [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('b_agentui_inbounds', JSON.stringify(inbounds));
+  }, [inbounds]);
   const [agentCount, setAgentCount] = useState(1);
   const [relayCount, setRelayCount] = useState(0);
+
+  const handleNodesChange = useCallback((count) => {
+    setAgentCount(count);
+  }, []);
+
+  const handleRelaysChange = useCallback((count) => {
+    setRelayCount(count);
+  }, []);
 
   const [isInboundModalOpen, setIsInboundModalOpen] = useState(false);
   const [editingInbound, setEditingInbound] = useState(null);
@@ -69,7 +91,19 @@ export default function App() {
   };
 
   const handleCopyIp = () => {
-    navigator.clipboard.writeText(serverIp);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(serverIp);
+    } else {
+      const textArea = document.createElement("textarea");
+      textArea.value = serverIp;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {}
+      document.body.removeChild(textArea);
+    }
     setServerIpCopied(true);
     showToast(`服务器 IP ${serverIp} 已复制到剪贴板！`);
     setTimeout(() => setServerIpCopied(false), 2000);
@@ -296,7 +330,7 @@ export default function App() {
             inbounds={inbounds}
             showToast={showToast}
             onOpenQRModal={handleOpenQRModal}
-            onNodesChange={setAgentCount}
+            onNodesChange={handleNodesChange}
           />
         )}
 
@@ -317,7 +351,7 @@ export default function App() {
           <RelayManagement 
             showToast={showToast} 
             onOpenQRModal={handleOpenQRModal}
-            onRelaysChange={setRelayCount}
+            onRelaysChange={handleRelaysChange}
           />
         )}
 
@@ -326,7 +360,7 @@ export default function App() {
         )}
 
         {activeTab === 'settings' && (
-          <SystemSettings inbounds={inbounds} showToast={showToast} />
+          <SystemSettings inbounds={inbounds} showToast={showToast} onRestoreInbounds={setInbounds} />
         )}
       </main>
 
@@ -342,6 +376,7 @@ export default function App() {
         isOpen={isQRModalOpen}
         onClose={() => setIsQRModalOpen(false)}
         inbound={selectedQRInbound}
+        serverIp={serverIp}
         showToast={showToast}
       />
 

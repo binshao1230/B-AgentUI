@@ -241,7 +241,7 @@ export default function RelayManagement({ showToast, onOpenQRModal, agents = PRE
     r.targetIp.includes(searchQuery)
   );
 
-  const totalRelayTraffic = relays.reduce((acc, curr) => acc + curr.up + curr.down, 0);
+  const totalRelayTraffic = relays.reduce((acc, curr) => acc + (curr.up || 0) + (curr.down || 0), 0);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -622,7 +622,7 @@ export default function RelayManagement({ showToast, onOpenQRModal, agents = PRE
                       required
                       placeholder="监听端口 (如: 30010)"
                       value={formData.entrancePort}
-                      onChange={e => setFormData({ ...formData, entrancePort: parseInt(e.target.value, 10) })}
+                      onChange={e => setFormData({ ...formData, entrancePort: parseInt(e.target.value, 10) || 0 })}
                     />
                   </div>
                 </div>
@@ -668,7 +668,7 @@ export default function RelayManagement({ showToast, onOpenQRModal, agents = PRE
                       required
                       placeholder="中转端口 (如: 18080)"
                       value={formData.relayPort}
-                      onChange={e => setFormData({ ...formData, relayPort: parseInt(e.target.value, 10) })}
+                      onChange={e => setFormData({ ...formData, relayPort: parseInt(e.target.value, 10) || 0 })}
                     />
                   </div>
                 </div>
@@ -695,7 +695,7 @@ export default function RelayManagement({ showToast, onOpenQRModal, agents = PRE
                     className="form-input font-mono"
                     required
                     value={formData.targetPort}
-                    onChange={e => setFormData({ ...formData, targetPort: parseInt(e.target.value, 10) })}
+                    onChange={e => setFormData({ ...formData, targetPort: parseInt(e.target.value, 10) || 0 })}
                   />
                 </div>
               </div>

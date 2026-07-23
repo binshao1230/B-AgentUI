@@ -23,7 +23,7 @@ export default function InboundList({
   const filteredInbounds = inbounds.filter(item => {
     const matchesSearch = item.remark.toLowerCase().includes(searchQuery.toLowerCase()) ||
                           item.port.toString().includes(searchQuery) ||
-                          item.protocol.toLowerCase().includes(searchQuery.toLowerCase());
+                          (item.protocol || '').toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesProtocol = selectedProtocol === 'all' || item.protocol === selectedProtocol;
     const matchesStatus = selectedStatus === 'all' || 
@@ -34,7 +34,7 @@ export default function InboundList({
   });
 
   const getProtocolBadgeClass = (protocol) => {
-    switch (protocol.toLowerCase()) {
+    switch ((protocol || '').toLowerCase()) {
       case 'vless': return 'badge-vless';
       case 'vmess': return 'badge-vmess';
       case 'trojan': return 'badge-trojan';
@@ -236,7 +236,7 @@ export default function InboundList({
                     onClick={() => {
                       const clonedInbound = {
                         ...inbound,
-                        id: null, // triggers new creation mode with copied parameters
+                        id: Date.now(), // triggers new creation mode with copied parameters
                         remark: `${inbound.remark}-Copy`,
                         port: Math.floor(Math.random() * 30000) + 10000
                       };

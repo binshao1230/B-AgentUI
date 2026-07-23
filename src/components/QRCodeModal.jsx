@@ -3,18 +3,30 @@ import { X, Copy, Check, QrCode } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { generateInboundUrl, generateClashMetaYaml, generateSingBoxJson } from '../utils/xrayHelper';
 
-export default function QRCodeModal({ isOpen, onClose, inbound, showToast }) {
+export default function QRCodeModal({ isOpen, onClose, inbound, serverIp, showToast }) {
   const [activeTab, setActiveTab] = useState('url');
   const [copied, setCopied] = useState(false);
 
   if (!isOpen || !inbound) return null;
 
-  const nodeUrl = generateInboundUrl(inbound);
-  const clashYaml = generateClashMetaYaml(inbound);
-  const singBoxJson = generateSingBoxJson(inbound);
+  const nodeUrl = generateInboundUrl(inbound, serverIp);
+  const clashYaml = generateClashMetaYaml(inbound, serverIp);
+  const singBoxJson = generateSingBoxJson(inbound, serverIp);
 
   const handleCopy = (text, label) => {
-    navigator.clipboard.writeText(text);
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text);
+    } else {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      try {
+        document.execCommand('copy');
+      } catch (err) {}
+      document.body.removeChild(textArea);
+    }
     setCopied(true);
     showToast(`已复制 ${label} 到剪贴板！`);
     setTimeout(() => setCopied(false), 2000);
