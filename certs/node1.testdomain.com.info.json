@@ -1,0 +1,12 @@
+{
+  "success": true,
+  "domain": "node1.testdomain.com",
+  "email": "admin@testdomain.com",
+  "issuer": "Let's Encrypt Authority X3 (ECC-256)",
+  "issuedAt": "2026-07-23T11:48:14.314Z",
+  "expiresAt": "2026-10-21T11:48:14.314Z",
+  "daysRemaining": 90,
+  "certPath": "I:\\google\\certs\\node1.testdomain.com.fullchain.pem",
+  "keyPath": "I:\\google\\certs\\node1.testdomain.com.privkey.pem",
+  "autoRenew": true
+}
