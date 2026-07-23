@@ -14,6 +14,8 @@ export default function SystemSettings({ inbounds, showToast, onRestoreInbounds 
   const [acmeDomain, setAcmeDomain] = useState('');
   const [acmeEmail, setAcmeEmail] = useState('');
   const [acmeProvider, setAcmeProvider] = useState('letsencrypt');
+  const [tgBotToken, setTgBotToken] = useState('');
+  const [tgChatId, setTgChatId] = useState('');
   
   // ACME 全自动申请流程与进度状态
   const [acmeStatus, setAcmeStatus] = useState('idle'); // idle | running | success | error
